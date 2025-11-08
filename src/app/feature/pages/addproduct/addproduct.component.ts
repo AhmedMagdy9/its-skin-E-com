@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Product } from '../../../shared/interfaces/product';
@@ -11,11 +11,11 @@ import { NotyfService } from '../../../core/services/notyf/notyf.service';
   templateUrl: './addproduct.component.html',
   styleUrl: './addproduct.component.scss'
 })
-export class AddproductComponent {
+export class AddproductComponent implements OnInit {
 
-   private productService = inject(ProductService)
-   private notyf = inject(NotyfService)
-
+  private productService = inject(ProductService)
+  private notyf = inject(NotyfService)
+  categories:string[] = []
   productForm = new FormGroup({
     id: new FormControl(''), // هيتولد أوتوماتيك لما نضيف المنتج
     name: new FormControl('', Validators.required),
@@ -30,8 +30,10 @@ export class AddproductComponent {
     lowStockThreshold: new FormControl<number | null>(null),
     isFavorite: new FormControl(false)
   });
-  categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
-
+   
+  ngOnInit(): void {
+    this.categories = this.productService.categories
+  }
 
   addProduct(): void {
     if (this.productForm.valid) {

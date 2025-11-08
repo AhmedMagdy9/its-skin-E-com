@@ -19,6 +19,7 @@ export class HomeComponent {
   private cartService = inject(CartService)
   private notyf = inject(NotyfService)
   products: Product[] = [];
+  categories: string[] = [];
   searchTerm: string = '';
   editingProductId: string | null = null;
   editForm: FormGroup = new FormGroup({
@@ -31,13 +32,13 @@ export class HomeComponent {
      lowStockThreshold: new FormControl<number | null>(null),
      description: new FormControl(''),
    });
-    categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
 
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
    if (isPlatformBrowser(this.platformid)) {
      this.loadProducts();
+     this.categories = this.productService.categories
    }
   }
 

@@ -10,6 +10,7 @@ export class ProductService {
 private storageKey = 'products';
 products!:Product[]
 private platformid = inject(PLATFORM_ID)
+categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
 
 constructor() {
     if (isPlatformBrowser(this.platformid)) {
@@ -43,22 +44,16 @@ getAll(): Product[] {
   }
 }
 
-    
- 
-    
-    
-
-
-    //  حفظ المنتجات في localStorage
+//  حفظ المنتجات في localStorage
 private saveProducts() {
     localStorage.setItem(this.storageKey, JSON.stringify(this.products));
 }
 
- outSaveProducts(products:Product[]) {
+outSaveProducts(products:Product[]) {
     localStorage.setItem(this.storageKey, JSON.stringify(products));
 }
 
-  // اضافة منتج جديد 
+// اضافة منتج جديد 
 add(product: Product): void {
   // أولًا نجيب كل المنتجات المخزنة حاليًا
   this.products = this.getAll();
@@ -99,18 +94,18 @@ add(product: Product): void {
   console.log('📦 الحالة النهائية للمنتجات:', this.products);
 }
 
-  // حذف منتج من المخزون 
+// حذف منتج من المخزون 
 delete(id: string): void {
     const products = this.getAll().filter(p => p.id !== id);
     localStorage.setItem(this.storageKey, JSON.stringify(products));
 }
 
-  // حذف جميع المنتجات
+// حذف جميع المنتجات
 clearAll(): void {
     localStorage.removeItem(this.storageKey);
 }
 
-   //  تقليل الكمية لمنتج معين
+//  تقليل الكمية لمنتج معين
 decreaseQuantity(productId: string, amount: number = 1): void {
   const found = this.products.find((p: Product) => p.id === productId);
   if (found) {
