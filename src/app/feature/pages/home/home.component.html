@@ -1,4 +1,4 @@
-<div class="min-h-screen   px-6">
+<div class="min-h-screen relative  px-6">
   
   <div class="flex justify-center my-6 ">
   <input  type="text"  placeholder="Search by name..."  [(ngModel)]="searchTerm"
@@ -73,6 +73,8 @@
               <td class="py-3 px-4 flex flex-col gap-3 lg:flex-row justify-between ">
                 <button (click)="addToCart(product)" class="bg-green-400 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-300" >
                  Add To Cart </button>
+                <button (click)="startEdit(product)" class="bg-yellow-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-yellow-800 transition-colors duration-300" >
+                 Update </button>
                 <button (click)="deleteProduct(product.id)" class="bg-rose-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-rose-700 transition-colors duration-300" >
                  Remove </button>
               </td>
@@ -83,5 +85,91 @@
       </table>
     </div>
   }
+
+
+  @if (editingProductId) {
+  <div class="bg-white absolute top-5 left-5 right-5 w-[90%] mx-auto  shadow-xl rounded-2xl  p-8 animate-[fadeInUp_1.5s_ease-out]">
+  <h2 class="text-3xl font-bold text-center text-[#4A70A9] mb-6 animate-[fadeIn_2s_ease-out]">
+  ✨  تعديل منتج
+  </h2>
+
+  <!-- فورم إضافة منتج -->
+  <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="space-y-5 animate-[fadeIn_2s_ease-out]" >
+    <!-- الاسم&  الماركة -->
+  <div class="flex justify-between items-center gap-6">
+      <!-- الاسم -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">اسم المنتج</label>
+      <input type="text" formControlName="name" placeholder="مثلاً: كريم ترطيب" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" />
+    </div>
+
+    <!-- الماركة -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">الماركة</label>
+      <input type="text" formControlName="brand" placeholder="مثلاً: CeraVe أو The Ordinary" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
+    </div>
+  </div>
+
+  <!-- سعر الشراء  &  سعر البيع  -->
+  <div class="flex justify-between items-center gap-6">
+    <!--  سعر الشراء  -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">سعر الشراء </label>
+      <input type="number" formControlName="Cost" placeholder="جنيه مصري" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
+    </div>
+    <!-- سعر البيع  -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">سعر البيع </label>
+      <input type="number" formControlName="price" placeholder="جنيه مصري" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
+    </div>
+  </div>
+ <!-- الكمية   &  الفئة-->
+  <div class="flex justify-between items-center gap-6">
+       <!-- الكمية -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">الكمية المتاحة</label>
+      <input type="number" formControlName="quantity" placeholder="0" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
+    </div>
+        <!-- الفئة -->
+    <div class=" w-full">
+      <label class="block text-gray-700 font-medium mb-2">الفئة</label>
+      <select formControlName="category" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" >
+        <option value="" disabled selected>اختر الفئة</option>
+        @for (cat of categories; track $index) { <option value="{{cat}}">{{cat}}</option> }
+       
+      </select>
+    </div>
+  </div>
+
+
+
+ <!-- تاريخ الصلاحية  & الحد الأدنى للكمية -->
+<div class="flex justify-between items-center gap-6">
+      
+
+    <!-- الحد الأدنى للكمية -->
+    <div class=" w-full">
+      <label class=" text-gray-700 font-medium mb-2">حد الكمية للتنبيه</label>
+      <input type="number" formControlName="lowStockThreshold" placeholder="مثلاً: 5" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" />
+    </div>
 </div>
+
+    <!-- الوصف -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-2">الوصف أو الملاحظات</label>
+      <textarea rows="3" formControlName="description" placeholder="مثلاً: مناسب للبشرة الحساسة، يُستخدم صباحًا ومساءً..." class="border border-gray-300 rounded-xl px-4 py-2 w-full resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" ></textarea>
+    </div>
+
+ 
+
+    <div class="flex gap-2 mt-2">
+      <button type="submit" (click)="saveEdit()" class="bg-green-500 text-white px-3 py-1 rounded">حفظ</button>
+      <button type="button" (click)="cancelEdit()" class="bg-red-500 text-white px-3 py-1 rounded">إلغاء</button>
+    </div>
+  </form>
+</div>
+}
+</div>
+
+
 

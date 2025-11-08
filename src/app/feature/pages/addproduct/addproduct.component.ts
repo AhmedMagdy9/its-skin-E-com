@@ -16,25 +16,24 @@ export class AddproductComponent {
    private productService = inject(ProductService)
    private notyf = inject(NotyfService)
 
- 
   productForm = new FormGroup({
     id: new FormControl(''), // هيتولد أوتوماتيك لما نضيف المنتج
     name: new FormControl('', Validators.required),
     brand: new FormControl('', Validators.required),
     category: new FormControl('', Validators.required),
     quantity: new FormControl(0, [Validators.required, Validators.min(1)]),
-    price: new FormControl<number | null>(null, [Validators.min(0)]),
-    Cost: new FormControl<number | null>(null, [Validators.min(0)]),
+    price: new FormControl<number | null>(null, [Validators.min(1)]),
+    Cost: new FormControl<number | null>(null, [Validators.min(1)]),
     expiryDate: new FormControl<string | null>(null),
     addedDate: new FormControl(new Date().toISOString()), // بيتسجل تلقائيًا
     description: new FormControl(''),
     lowStockThreshold: new FormControl<number | null>(null),
     isFavorite: new FormControl(false)
   });
+  categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
 
-  constructor() {}
 
-  onSubmit(): void {
+  addProduct(): void {
     if (this.productForm.valid) {
       const newProduct: Product = this.productForm.value as Product;
       newProduct.id = Date.now().toString(); // أو UUID بعدين

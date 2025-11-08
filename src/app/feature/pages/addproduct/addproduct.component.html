@@ -5,7 +5,7 @@
   </h2>
 
   <!-- فورم إضافة منتج -->
-  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-5 animate-[fadeIn_2s_ease-out]" >
+  <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="space-y-5 animate-[fadeIn_2s_ease-out]" >
     <!-- الاسم&  الماركة -->
   <div class="flex justify-between items-center gap-6">
       <!-- الاسم -->
@@ -46,19 +46,12 @@
       <label class="block text-gray-700 font-medium mb-2">الفئة</label>
       <select formControlName="category" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" >
         <option value="" disabled selected>اختر الفئة</option>
-        <option value="شامبو">شامبو</option>
-        <option value="بلسم">بلسم</option>
-        <option value="بديل زيت">بديل زيت</option>
-        <option value="زيت">زيت</option>
-        <option value="مرطب">مرطب</option>
-        <option value="سيروم">سيروم</option>
-        <option value="غسول">غسول</option>
-        <option value="واقي شمس">واقي شمس</option>
-        <option value="تونر">تونر</option>
-        <option value="مقشر">مقشر</option>
+        @for (cat of categories; track $index) { <option value="{{cat}}">{{cat}}</option> }
+       
       </select>
     </div>
   </div>
+
 
 
  <!-- تاريخ الصلاحية  & الحد الأدنى للكمية -->
@@ -90,7 +83,7 @@
     </div>
 
     <!-- زر الإضافة -->
-    <button type="submit" class="w-full cursor-pointer bg-[#8FABD4] text-white py-2 rounded-xl font-semibold hover:bg-[#4A70A9] transition-all duration-500 mt-4 shadow-md hover:shadow-lg">
+    <button [disabled]="productForm.invalid" type="submit" class="w-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-[#8FABD4] text-white py-2 rounded-xl font-semibold hover:bg-[#4A70A9] transition-all duration-500 mt-4 shadow-md hover:shadow-lg">
       إضافة المنتج
     </button>
   </form>

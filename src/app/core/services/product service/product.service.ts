@@ -26,16 +26,23 @@ constructor() {
      
 }
 
-  // جلب كل المنتجات
+// جلب كل المنتجات
 getAll(): Product[] {
-    if (isPlatformBrowser(this.platformid)) {
-      const products = localStorage.getItem('products');
-      return products ? JSON.parse(products) : [];
-    } else {
-      // لو مش في المتصفح (زي وقت الـ build)
-      return [];
-    }
+  if (isPlatformBrowser(this.platformid)) {
+    const products = localStorage.getItem('products');
+    const parsedProducts: Product[] = products ? JSON.parse(products) : [];
+    // 🔤 ترتيب أبجدي عام لأي لغة (عربي / إنجليزي / غيره)
+    parsedProducts.sort((a, b) =>
+      a.name.localeCompare(b.name, 'default', { sensitivity: 'base' })
+    );
+
+    return parsedProducts;
+  } else {
+    // لو مش في المتصفح (زي وقت الـ build)
+    return [];
   }
+}
+
     
  
     

@@ -3,13 +3,13 @@ import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../../core/services/cart/cart.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotyfService } from '../../../core/services/notyf/notyf.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule , ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -20,6 +20,18 @@ export class HomeComponent {
   private notyf = inject(NotyfService)
   products: Product[] = [];
   searchTerm: string = '';
+  editingProductId: string | null = null;
+  editForm: FormGroup = new FormGroup({
+     name: new FormControl('', Validators.required),
+     brand: new FormControl('', Validators.required),
+     category: new FormControl('', Validators.required),
+     quantity: new FormControl(0, [Validators.required, Validators.min(1)]),
+     price: new FormControl<number | null>(null, [Validators.min(1)]),
+     Cost: new FormControl<number | null>(null, [Validators.min(1)]),
+     lowStockThreshold: new FormControl<number | null>(null),
+     description: new FormControl(''),
+   });
+    categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
 
   constructor(private productService: ProductService) {}
 
@@ -80,5 +92,33 @@ export class HomeComponent {
 
  
  }
+
+
+  // بدء التعديل على منتج معين
+  startEdit(product: Product) {
+    this.editingProductId = product.id;
+    this.editForm.patchValue(product);
+  }
+
+  // حفظ التعديلات
+  saveEdit() {
+    if (!this.editingProductId) return;
+    console.log(this.editForm.value)
+    const index = this.products.findIndex(p => p.id === this.editingProductId);
+    if (index !== -1) {
+      this.products[index] = { ...this.products[index], ...this.editForm.value };
+      this.productService.outSaveProducts(this.products);
+      this.editingProductId = null;
+      this.editForm.reset();
+      this.loadProducts();
+      this.notyf.success('Product updated successfully')
+    }
+  }
+
+  // إلغاء التعديل
+  cancelEdit() {
+    this.editingProductId = null;
+    this.editForm.reset();
+  }
 
 }

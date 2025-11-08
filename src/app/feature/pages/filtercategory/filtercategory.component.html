@@ -47,6 +47,11 @@
             <p class="text-sm text-gray-500 mb-1">
               <span class="font-medium">Quantity:</span> {{ product.quantity }}
             </p>
+
+            <div class="text-center py-2">
+             <button (click)="addToCart(product)" class="bg-green-400 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-300" >
+             Add To Cart </button>
+            </div>
           </div>
         }
       </div>
