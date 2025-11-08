@@ -132,7 +132,7 @@ export class DashbordComponent {
 
   // 💹 حساب الربح ونسبة الربح من الطلبات فقط
   const totalProfit = totalRevenue - totalOrderCost;
-  const profitPercentage = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+  const profitPercentage = totalRevenue > 0 ? (totalProfit / totalOrderCost) * 100 : 0;
 
   // 🧮 إجمالي المشتريات الشهرية (اللي اتشرت سواء اتباع منها أو لسه)
   const totalPurchases = totalCost + totalStockPurchases;
@@ -225,7 +225,7 @@ export class DashbordComponent {
   });
 
   const totalProfit = totalRevenue - totalCost;
-  const profitPercentage = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+  const profitPercentage = totalRevenue > 0 ? (totalProfit / totalCost) * 100 : 0;
 
   return +profitPercentage.toFixed(2);
   }
