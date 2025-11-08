@@ -40,6 +40,7 @@ export class AddproductComponent {
       newProduct.id = Date.now().toString(); // أو UUID بعدين
       newProduct.addedDate = new Date().toISOString();
       this.notyf.success('Product added successfully')
+      this.productForm.reset();
       // بعدين نحفظه في localStorage أو نضيفه للـ service
       this.productService.add(newProduct)
     } else {
