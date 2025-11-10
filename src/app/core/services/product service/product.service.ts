@@ -10,7 +10,7 @@ export class ProductService {
 private storageKey = 'products';
 products!:Product[]
 private platformid = inject(PLATFORM_ID)
-categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر",   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين"];
+categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر","ماسك شعر" ,   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين", "ماسك وجة" , "شفرات سكرين"];
 
 constructor() {
     if (isPlatformBrowser(this.platformid)) {

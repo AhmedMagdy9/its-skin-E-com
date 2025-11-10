@@ -5,11 +5,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotyfService } from '../../../core/services/notyf/notyf.service';
+import { ExpensesComponent } from "../expenses/expenses.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule , ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

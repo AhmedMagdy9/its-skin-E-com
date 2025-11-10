@@ -6,6 +6,7 @@ import { DashbordComponent } from './feature/pages/dashbord/dashbord.component';
 import { DeleteordersComponent } from './feature/pages/deleteorders/deleteorders.component';
 import { FiltercategoryComponent } from './feature/pages/filtercategory/filtercategory.component';
 import { OrdersComponent } from './feature/pages/orders/orders.component';
+import { ExpensesComponent } from './feature/pages/expenses/expenses.component';
 
 export const routes: Routes = [
     {path:'' ,       redirectTo:'home' , pathMatch:'full'},
@@ -16,5 +17,6 @@ export const routes: Routes = [
     {path:'deleteorder' , component:DeleteordersComponent , title:'its-Skin-complated orders'},
     {path:'categorise' , component:FiltercategoryComponent , title:'its-Skin-categorise'},
     {path:'orders' , component:OrdersComponent , title:'its-Skin-orders'},
+    {path:'Expenses' , component:ExpensesComponent , title:'its-Skin-Expenses'},
    
 ];

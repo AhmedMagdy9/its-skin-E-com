@@ -1,0 +1,97 @@
+
+<div class="min-h-screen bg-main p-10 text-white">
+  <div class="max-w-4xl mx-auto bg-black/50 backdrop-blur-md rounded-3xl shadow-2xl px-8 py-4 animate-[fadeIn_1s_ease-out]">
+
+    <h2 class="text-3xl font-extrabold mb-8 text-center text-white drop-shadow-lg">
+      💰 المصروفات النثرية
+    </h2>
+
+    <!-- ✅ Form -->
+    <form [formGroup]="expenseForm" (ngSubmit)="onAddExpense()" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <label class="block mb-2 font-semibold text-white/90">اسم المصروف</label>
+        <input type="text" formControlName="title"
+          class="w-full rounded-xl p-3 text-gray-900 focus:ring-4 focus:ring-pink-300 outline-none" />
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold text-white/90">المبلغ</label>
+        <input type="number" formControlName="amount"
+          class="w-full rounded-xl p-3 text-gray-900 focus:ring-4 focus:ring-pink-300 outline-none" />
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold text-white/90">التاريخ</label>
+        <input type="date" formControlName="date"
+          class="w-full rounded-xl p-3 text-gray-900 focus:ring-4 focus:ring-pink-300 outline-none" />
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block mb-2 font-semibold text-white/90">ملاحظات</label>
+        <textarea formControlName="details"
+          class="w-full rounded-xl p-3 text-gray-900 focus:ring-4 focus:ring-pink-300 outline-none h-24"></textarea>
+      </div>
+
+      <div class="md:col-span-2 flex justify-center">
+        <button type="submit" [disabled]="expenseForm.invalid"
+          class="px-8 py-3 rounded-full bg-white text-pink-600 font-bold hover:scale-105 hover:bg-pink-50 transition-all duration-300 shadow-lg cursor-pointer disabled:cursor-not-allowed  disabled:opacity-50">
+          ➕ إضافة مصروف
+        </button>
+      </div>
+    </form>
+
+
+  </div>
+</div>
+
+<div class="w-3/4 mx-auto">
+    <!-- ✅ البحث حسب الشهر -->
+<div class="bg-black/50 p-4 rounded-2xl mb-6">
+  <label class="block mb-2 font-semibold text-white/90">بحث حسب الشهر:</label>
+  <input
+    type="month"
+    min="2020-01"
+    max="2090-12"
+    (change)="filterByMonth($event)"
+    class="w-full rounded-xl p-3 text-gray-900 focus:ring-4 focus:ring-pink-300 outline-none"
+  />
+</div>
+
+
+    <!-- ✅ الجدول -->
+    <div class="overflow-x-auto rounded-2xl shadow-lg">
+      <table class="w-full text-center bg-black/50 backdrop-blur-lg">
+        <thead>
+          <tr class="bg-white/30 text-pink-100">
+            <th class="p-3">الاسم</th>
+            <th class="p-3">المبلغ</th>
+            <th class="p-3">التاريخ</th>
+            <th class="p-3">الملاحظات</th>
+            <th class="p-3">حذف</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (exp of filteredExpenses; track exp.id) {
+            <tr
+              class="hover:bg-gray-600 transition-all duration-300 border-b border-white/20">
+              <td class="p-3">{{ exp.title }}</td>
+              <td class="p-3">{{ exp.amount }} ج.م</td>
+              <td class="p-3">{{ exp.date }}</td>
+              <td class="p-3">{{ exp.details || '-' }}</td>
+              <td class="p-3">
+                <button (click)="deleteExpense(exp.id)"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full shadow-md hover:scale-110 transition">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td colspan="5" class="p-6 text-white/80">🚫 لا توجد مصروفات لعرضها</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+</div>
