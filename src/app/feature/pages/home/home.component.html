@@ -9,7 +9,7 @@
   <h1 class="text-3xl font-bold text-center mb-8 text-blue-900">📦 منتجاتك الحالية</h1>
 
   <!-- لو مفيش منتجات -->
-  @if (!products || products.length === 0) {
+  @if (!products() || products().length === 0) {
     <div class="text-center text-gray-500 text-lg">
       مفيش منتجات مضافة لسه 😅
     </div>

@@ -1,13 +1,13 @@
 <div class="  px-6">
   <h1 class="text-3xl font-bold text-center mb-8 text-blue-900">🛒 Cart</h1>
 
-  @if (cartItems.length === 0) {
+  @if (cartItems().length === 0) {
     <div class="text-center text-[#4A70A9]">
       مفيش منتجات في الكارت دلوقتي 😅
     </div>
   }
 
-  @if (cartItems.length > 0) {
+  @if (cartItems().length > 0) {
     <div class="space-y-4">
       @for  (item of cartItems(); track item.id)  {
         <div class="bg-white p-4 rounded-2xl shadow flex items-center justify-between">
@@ -21,7 +21,7 @@
             <button (click)="removeItem(item.id)" class="text-red-500 cursor-pointer hover:text-red-700">🗑️</button>
           </div>
         </div>
-      } <!-- نهاية ال @for -->
+      }
 
       <div class="flex justify-between items-center mt-6 border-t pt-4">
         <h2 class="text-xl font-bold">الإجمالي: {{ getTotal() }} EGP</h2>
@@ -30,7 +30,7 @@
         </button>
       </div>
     </div>
-  } <!-- نهاية ال @if (cartItems.length > 0) -->
+  }
 </div>
 
 <div class=" min-h-screen flex items-center justify-center bg-main py-10 px-6">
