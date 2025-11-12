@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
@@ -15,10 +15,10 @@ import { CartService } from '../../../core/services/cart/cart.service';
 })
 export class FiltercategoryComponent {
 
-  categories: string[] = [];
-  brands: string[] = [];
-  selectedCatOrBrand = '';
-  filteredProducts: Product[] = [];
+  categories:WritableSignal<string[]> = signal <string[]>([])
+  brands:WritableSignal<string[]> = signal <string[]>([])
+  selectedCatOrBrand:WritableSignal<string> =signal('');
+  filteredProducts:WritableSignal<Product[]> = signal<Product[]>([]);
   private platformid = inject(PLATFORM_ID)
   private cartService = inject(CartService);
   private notyf = inject(NotyfService)
@@ -30,17 +30,17 @@ export class FiltercategoryComponent {
    if (isPlatformBrowser(this.platformid)) {
      // ✅ استرجاع الفئات من كل المنتجات 
     const allProducts = this.productService.getAll();
-    this.categories = [...new Set(allProducts.map(p => p.category))];
+    this.categories.set([...new Set(allProducts.map(p => p.category))]) ;
      // ✅ استرجاع الشركات من كل المنتجات 
     const allProductsBrand = this.productService.getAll();
-    this.brands = [...new Set(allProductsBrand.map(p => p.brand))];
+    this.brands.set([...new Set(allProductsBrand.map(p => p.brand))]);
     
    }
   }
 
   filterProducts(filterWord: string): void {
   const allProducts = this.productService.getAll();
-  this.filteredProducts = allProducts.filter(p => p.category === filterWord || p.brand === filterWord);
+  this.filteredProducts.set(allProducts.filter(p => p.category === filterWord || p.brand === filterWord));
   }
 
 
@@ -62,7 +62,6 @@ export class FiltercategoryComponent {
   }
 
   this.notyf.success('Product added successfully')
-  // ✅ 5. حدث الليستة في الصفحة
 
  
   }

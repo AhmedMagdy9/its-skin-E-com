@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../../core/services/product service/product.service';
@@ -18,7 +18,8 @@ import { NotyfService } from '../../../core/services/notyf/notyf.service';
 })
 export class CartComponent {
 
-cartItems: any[] = [];
+
+cartItems:WritableSignal<Product[]> = signal<Product[]>([]);
 private platformid = inject(PLATFORM_ID)
 private productService = inject(ProductService)
 private cartService = inject(CartService)
@@ -39,7 +40,7 @@ ngOnInit(): void {
 }
 
 loadCart() {
-    this.cartItems = this.cartService.getCartItems();
+    this.cartItems.set(this.cartService.getCartItems());
 }
 
 removeItem(id: string) {
@@ -186,12 +187,12 @@ clearCart() {
 
 
 getTotal() {
-    return this.cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return this.cartItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
 }
 
   submitOrder() {
-    if (this.orderForm.invalid || this.cartItems.length === 0) {
-      alert('رجاءً تأكد من إدخال البيانات كاملة ووجود منتجات في الكارت.');
+    if (this.orderForm.invalid || this.cartItems().length === 0) {
+      this.notyf.error('رجاءً تأكد من إدخال البيانات كاملة ووجود منتجات في الكارت.');
       return;
     }
 
@@ -200,7 +201,7 @@ getTotal() {
       customerName: this.orderForm.value.customerName!,
       phone: this.orderForm.value.phone!,
       address: this.orderForm.value.address!,
-      items: this.cartItems,
+      items: this.cartItems(),
       totalPrice: this.getTotal(),
       date: new Date().toISOString(),
       status: 'pending',

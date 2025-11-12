@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { isPlatformBrowser } from '@angular/common';
@@ -19,10 +19,11 @@ export class HomeComponent {
   private platformid = inject(PLATFORM_ID)
   private cartService = inject(CartService)
   private notyf = inject(NotyfService)
-  products: Product[] = [];
-  categories: string[] = [];
-  searchTerm: string = '';
-  editingProductId: string | null = null;
+  private productService = inject(ProductService)
+  products:WritableSignal<Product[]> = signal<Product[]>([]);
+  categories:WritableSignal<string[]> = signal <string[]>([])
+  searchTerm:WritableSignal<string> = signal('');
+  editingProductId:WritableSignal<string | null> = signal(null);
   editForm: FormGroup = new FormGroup({
      name: new FormControl('', Validators.required),
      brand: new FormControl('', Validators.required),
@@ -34,18 +35,16 @@ export class HomeComponent {
      description: new FormControl(''),
    });
 
-  constructor(private productService: ProductService) {}
-
   ngOnInit(): void {
    if (isPlatformBrowser(this.platformid)) {
      this.loadProducts();
-     this.categories = this.productService.categories
+     this.categories.set(this.productService.categories)
    }
   }
 
   loadProducts(): void {
-    this.products = this.productService.getAll();
-    console.log( this.products)
+    this.products.set(this.productService.getAll()) ;
+    console.log( this.products())
    
   }
 
@@ -98,7 +97,7 @@ export class HomeComponent {
 
   // بدء التعديل على منتج معين
   startEdit(product: Product) {
-    this.editingProductId = product.id;
+    this.editingProductId.set(product.id); 
     this.editForm.patchValue(product);
   }
 
@@ -106,11 +105,11 @@ export class HomeComponent {
   saveEdit() {
     if (!this.editingProductId) return;
     console.log(this.editForm.value)
-    const index = this.products.findIndex(p => p.id === this.editingProductId);
+    const index = this.products().findIndex(p => p.id === this.editingProductId());
     if (index !== -1) {
-      this.products[index] = { ...this.products[index], ...this.editForm.value };
-      this.productService.outSaveProducts(this.products);
-      this.editingProductId = null;
+      this.products()[index] = { ...this.products()[index], ...this.editForm.value };
+      this.productService.outSaveProducts(this.products());
+      this.editingProductId.set(null);
       this.editForm.reset();
       this.loadProducts();
       this.notyf.success('Product updated successfully')
@@ -119,7 +118,7 @@ export class HomeComponent {
 
   // إلغاء التعديل
   cancelEdit() {
-    this.editingProductId = null;
+    this.editingProductId.set(null);
     this.editForm.reset();
   }
 

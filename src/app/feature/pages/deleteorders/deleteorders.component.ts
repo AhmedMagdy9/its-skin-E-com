@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Order } from '../../../shared/interfaces/order';
 import { DeleteorderService } from '../../../core/services/deleteorder/deleteorder.service';
 import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
@@ -13,11 +13,11 @@ import { NotyfService } from '../../../core/services/notyf/notyf.service';
 })
 export class DeleteordersComponent {
 
- deletedOrders: Order[] = [];
+
+ deletedOrders:WritableSignal<Order[]> = signal<Order[]>([]);
  private platformid = inject(PLATFORM_ID)
  private notyf = inject(NotyfService)
-
-  constructor(private deletedOrdersService: DeleteorderService) {}
+ private deletedOrdersService = inject(DeleteorderService)
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformid)) {
@@ -27,8 +27,7 @@ export class DeleteordersComponent {
   }
 
   loadDeletedOrders() {
-    this.deletedOrders = this.deletedOrdersService.getAllDeletedOrders();
-    console.log(this.deletedOrders);
+    this.deletedOrders.set(this.deletedOrdersService.getAllDeletedOrders());
   }
 
   deletePermanently(orderId: string) {

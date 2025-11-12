@@ -5,45 +5,45 @@
   <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
     <div class="bg-white p-6 rounded-2xl shadow-md text-center">
       <h2 class="text-gray-500 font-medium">إجمالي الطلبات</h2>
-      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ totalOrders }}</p>
+      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ totalOrders() }}</p>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-md text-center">
       <h2 class="text-gray-500 font-medium">طلبات معلقة</h2>
-      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ pendingOrders }}</p>
+      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ pendingOrders() }}</p>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-md text-center">
       <h2 class="text-gray-500 font-medium">طلبات مكتملة (قيد التسليم)</h2>
-      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ completedOrders }}</p>
+      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ completedOrders() }}</p>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-md text-center">
       <h2 class="text-gray-500 font-medium">طلبات مكتملة فعليًا </h2>
-      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ deletedOrders }}</p>
+      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ deletedOrders() }}</p>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-md text-center col-span-full lg:col-span-1">
       <h2 class="text-gray-500 font-medium">عدد المنتجات</h2>
-      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ totalProducts }}</p>
+      <p class="text-4xl font-bold text-[#4A70A9] mt-2">{{ totalProducts() }}</p>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-md text-center col-span-full lg:col-span-1">
       <h2 class="text-gray-500 font-medium">إجمالي المبيعات </h2>
       <p class="text-4xl font-bold text-[#4A70A9] mt-2">
-        {{ totalRevenue | number }} جنيه
+        {{ totalRevenue() | number }} جنيه
       </p>
     </div>
     <div class="bg-white p-6 rounded-2xl shadow-md text-center col-span-full lg:col-span-1">
       <h2 class="text-gray-500 font-medium">  سعر شراء منتجات المخزن</h2>
       <p class="text-4xl font-bold text-[#4A70A9] mt-2">
-        {{ totalProductsCost | number }} جنيه
+        {{ totalProductsCost() | number }} جنيه
       </p>
     </div>
     <div class="bg-white p-6 rounded-2xl shadow-md text-center col-span-full lg:col-span-1">
       <h2 class="text-gray-500 font-medium"> سعر بيع منتجات المخزن </h2>
       <p class="text-4xl font-bold text-[#4A70A9] mt-2">
-        {{ totalProductsPrice | number }} جنيه
+        {{ totalProductsPrice() | number }} جنيه
       </p>
     </div>
     <div class="bg-white p-6 rounded-2xl shadow-md text-center col-span-full lg:col-span-1">
@@ -70,9 +70,9 @@
       ></div>
 
       <div class="absolute inset-8 bg-white rounded-full flex items-center justify-center text-center">
-        @if (totalOrders > 0) {
+        @if (totalOrders() > 0) {
           <p class="text-lg font-semibold text-gray-600">
-            إجمالي {{ totalOrders }} طلب
+            إجمالي {{ totalOrders() }} طلب
           </p>
         } @else {
           <p class="text-lg font-semibold text-gray-400">لا توجد طلبات</p>
@@ -158,32 +158,32 @@
     </button>
   </div>
 
-@if (filteredRevenue && filteredProfit && filteredProfitPercentage && filteredCost) {
+@if (filteredRevenue() && filteredProfit() && filteredProfitPercentage() && filteredCost()) {
     <!-- 📊 الكروت -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
 
     <!-- الإيرادات -->
     <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-green-400">
       <h3 class="text-gray-500 text-sm font-medium mb-2">إجمالي المبيعات</h3>
-      <p class="text-2xl font-bold text-green-600">{{ filteredRevenue | number:'1.0-2' }} ج.م</p>
+      <p class="text-2xl font-bold text-green-600">{{ filteredRevenue() | number:'1.0-2' }} ج.م</p>
     </div>
 
     <!-- الأرباح -->
     <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-blue-400">
       <h3 class="text-gray-500 text-sm font-medium mb-2">إجمالي الأرباح</h3>
-      <p class="text-2xl font-bold text-blue-600">{{ filteredProfit | number:'1.0-2' }} ج.م</p>
+      <p class="text-2xl font-bold text-blue-600">{{ filteredProfit() | number:'1.0-2' }} ج.م</p>
     </div>
 
     <!-- نسبة الربح -->
     <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-purple-400">
       <h3 class="text-gray-500 text-sm font-medium mb-2">نسبة الربح</h3>
-      <p class="text-2xl font-bold text-purple-600">{{ filteredProfitPercentage | number:'1.0-2' }}%</p>
+      <p class="text-2xl font-bold text-purple-600">{{ filteredProfitPercentage() | number:'1.0-2' }}%</p>
     </div>
 
     <!-- المشتريات -->
     <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-pink-400">
       <h3 class="text-gray-500 text-sm font-medium mb-2">إجمالي المشتريات</h3>
-      <p class="text-2xl font-bold text-pink-600">{{ filteredCost | number:'1.0-2' }} ج.م</p>
+      <p class="text-2xl font-bold text-pink-600">{{ filteredCost() | number:'1.0-2' }} ج.م</p>
     </div>
 
   </div>

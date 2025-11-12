@@ -11,16 +11,16 @@
         class="w-full md:w-1/2 border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-rose-400 outline-none"
       >
         <option value="" disabled selected>اختر الفئة</option>
-        @for (cat of categories; track cat) {
+        @for (cat of categories(); track cat) {
           <option [value]="cat">{{ cat }}</option>
         }
         <option value="" disabled selected>اختر الشركة</option>
-        @for (brand of brands; track brand) {
+        @for (brand of brands(); track brand) {
           <option [value]="brand">{{ brand }}</option>
         }
       </select>
 
-      <button  (click)="filterProducts(selectedCatOrBrand)"  [disabled]="!selectedCatOrBrand"  class="bg-[#8FABD4] cursor-pointer hover:bg-[#4A70A9] text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button  (click)="filterProducts(selectedCatOrBrand())"  [disabled]="!selectedCatOrBrand()"  class="bg-[#8FABD4] cursor-pointer hover:bg-[#4A70A9] text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
         عرض البحث
       </button>
     </div>
@@ -28,7 +28,7 @@
     <!-- ✅ عرض المنتجات -->
     @if (filteredProducts.length > 0) {
       <div class="grid md:grid-cols-2 gap-6 mt-6">
-        @for (product of filteredProducts; track product.id) {
+        @for (product of filteredProducts(); track product.id) {
           <div
             class="p-5 bg-white border border-gray-200 rounded-xl shadow hover:shadow-lg transition-all duration-300"
           >
@@ -55,7 +55,7 @@
           </div>
         }
       </div>
-    } @else if (selectedCatOrBrand) {
+    } @else if (selectedCatOrBrand()) {
       <p class="text-center text-gray-500 mt-10">
         لا يوجد منتجات في هذه الفئة 😔
       </p>

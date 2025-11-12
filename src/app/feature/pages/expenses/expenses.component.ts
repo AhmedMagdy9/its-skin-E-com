@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExpensesService } from '../../../core/services/Expenses/expenses.service';
 import { Expense } from '../../../shared/interfaces/Expenses';
@@ -13,7 +13,8 @@ import { NotyfService } from '../../../core/services/notyf/notyf.service';
   styleUrl: './expenses.component.scss'
 })
 export class ExpensesComponent {
-  filteredExpenses: Expense[] = [];
+
+  filteredExpenses:WritableSignal<Expense[]> = signal<Expense[]>([]);
   private platformid = inject(PLATFORM_ID)
   private notyfService = inject(NotyfService)
    expenseForm: FormGroup = new FormGroup({
@@ -27,7 +28,8 @@ export class ExpensesComponent {
 
   ngOnInit(): void {
    if (isPlatformBrowser(this.platformid)) {
-     this.filteredExpenses = this.expensesService.getAllExpenses();
+    //  this.filteredExpenses = this.expensesService.getAllExpenses();
+    this.filteredExpenses.set(this.expensesService.getAllExpenses());
    }
    
   }
@@ -38,7 +40,7 @@ export class ExpensesComponent {
       console.log(this.expenseForm.value);
       newExpense.id = Date.now().toString();
       this.expensesService.addExpense(newExpense);
-      this.filteredExpenses = this.expensesService.getAllExpenses();
+      this.filteredExpenses.set(this.expensesService.getAllExpenses());
       this.notyfService.success('Expense added successfully.');
       this.expenseForm.reset();
     }
@@ -46,15 +48,13 @@ export class ExpensesComponent {
  // ✅ فلترة حسب الشهر
   filterByMonth(event: any) {
   const month = event.target.value; // مثلاً "2025-11"
-  console.log(month);
-  
-  this.filteredExpenses = this.expensesService.getExpensesByMonth(month);
+  this.filteredExpenses.set(this.expensesService.getExpensesByMonth(month));
   }
 
 
   deleteExpense(id: string): void {
     this.expensesService.deleteExpense(id);
     this.notyfService.error('Expense deleted successfully.');
-    this.filteredExpenses = this.expensesService.getAllExpenses();
+    this.filteredExpenses.set(this.expensesService.getAllExpenses());
   }
 }

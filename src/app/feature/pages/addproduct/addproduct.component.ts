@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Product } from '../../../shared/interfaces/product';
@@ -15,7 +15,7 @@ export class AddproductComponent implements OnInit {
 
   private productService = inject(ProductService)
   private notyf = inject(NotyfService)
-  categories:string[] = []
+  categories:WritableSignal<string[]> = signal <string[]>([])
   productForm = new FormGroup({
     id: new FormControl(''), // هيتولد أوتوماتيك لما نضيف المنتج
     name: new FormControl('', Validators.required),
@@ -32,7 +32,7 @@ export class AddproductComponent implements OnInit {
   });
    
   ngOnInit(): void {
-    this.categories = this.productService.categories
+    this.categories.set(this.productService.categories)
   }
 
   addProduct(): void {

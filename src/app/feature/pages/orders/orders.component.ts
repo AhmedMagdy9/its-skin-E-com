@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { OrdersService } from '../../../core/services/orders.service';
 import { Order } from '../../../shared/interfaces/order';
 import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
@@ -15,7 +15,7 @@ import { Product } from '../../../shared/interfaces/product';
   styleUrl: './orders.component.scss'
 })
 export class OrdersComponent {
-  allOrders: Order[] = [];
+  allOrders:WritableSignal<Order[]> = signal<Order[]>([]);
   activeTab: 'pending' | 'completed' = 'pending';
   private platformid = inject(PLATFORM_ID)
   private deletedOrdersService = inject(DeleteorderService)
@@ -31,15 +31,15 @@ export class OrdersComponent {
   }
 
   loadOrders() {
-    this.allOrders = this.orderService.getAllOrders();
+    this.allOrders.set(this.orderService.getAllOrders());
   }
 
   get pendingOrders() {
-    return this.allOrders.filter(o => o.status === 'pending');
+    return this.allOrders().filter(o => o.status === 'pending');
   }
 
   get completedOrders() {
-    return this.allOrders.filter(o => o.status === 'completed');
+    return this.allOrders().filter(o => o.status === 'completed');
   }
 
   markAsCompleted(id: string) {

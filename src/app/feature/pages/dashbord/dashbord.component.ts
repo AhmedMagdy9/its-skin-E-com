@@ -1,9 +1,10 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
 import { OrdersService } from '../../../core/services/orders.service';
 import { DeleteorderService } from '../../../core/services/deleteorder/deleteorder.service';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { CurrencyPipe, DecimalPipe, isPlatformBrowser} from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Product } from '../../../shared/interfaces/product';
 
 @Component({
   selector: 'app-dashbord',
@@ -14,23 +15,24 @@ import { FormsModule } from '@angular/forms';
 })
 export class DashbordComponent {
   private platformid = inject(PLATFORM_ID)
-  totalOrders = 0;
-  pendingOrders = 0;
-  completedOrders = 0;
-  deletedOrders = 0;
-  totalProducts = 0;
-  totalProductsCost = 0;
-  totalProductsPrice = 0;
-  totalRevenue = 0;
-  filteredProfit = 0;
-  filteredProfitPercentage = 0;
-  filteredCost: number = 0;    
+  totalOrders = signal(0);
+  pendingOrders = signal(0);
+  completedOrders = signal(0);
+  deletedOrders = signal(0);
+  totalProducts = signal(0);
+  totalProductsCost = signal(0);
+  totalProductsPrice = signal(0);
+  totalRevenue = signal(0);
+  filteredProfit = signal(0);
+  filteredProfitPercentage = signal(0); 
+  filteredCost = signal(0);  
+  filteredRevenue = signal(0); 
   topProducts: any[] = [];
   months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو','يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر' ];
   years = [2020, 2021 ,2022 , 2023 , 2024 ,2025 ,2026 , 2027 , 2028 , 2029 , 2030];
   selectedMonth = new Date().getMonth() + 1;
   selectedYear = new Date().getFullYear();
-  filteredRevenue = 0;
+ 
 
   constructor(private orderService: OrdersService, private productService: ProductService ,private deleteorderService: DeleteorderService) {}
  
@@ -43,15 +45,20 @@ export class DashbordComponent {
   }
 
   loadDashboardData() {
-    const orders = this.orderService.getAllOrders(); // كل الطلبات
-    const deletedOrders = this.deleteorderService.getAllDeletedOrders(); // الطلبات المحذوفة (اللي تعتبر مكتملة فعليًا)
-    this.totalOrders = orders.length;
-    this.pendingOrders = orders.filter(o => o.status === 'pending').length;
-    this.completedOrders = orders.filter(o => o.status === 'completed').length;
-    this.deletedOrders = deletedOrders.length;
-    this.totalProducts = this.productService.getAll().length;
-    this.totalProductsCost = this.productService.getAll().reduce((sum, p) => sum + Number(p.Cost * p.quantity || 0), 0);
-    this.totalProductsPrice = this.productService.getAll().reduce((sum, p) => sum + Number(p.price * p.quantity || 0), 0);
+   const orders = this.orderService.getAllOrders(); // كل الطلبات
+   const deletedOrders = this.deleteorderService.getAllDeletedOrders(); // الطلبات المحذوفة (اللي تعتبر مكتملة فعليًا)
+   this.totalOrders.set(orders.length);
+   this.pendingOrders.set(orders.filter(o => o.status === 'pending').length);
+   this.completedOrders.set(orders.filter(o => o.status === 'completed').length);
+   this.deletedOrders.set(deletedOrders.length);
+   const allProducts = this.productService.getAll(); 
+   console.log(  'allProducts',allProducts);
+   this.totalProducts.set(allProducts.length);
+   this.totalProductsCost.set(allProducts.reduce((sum, p) => sum + Number(p.Cost * p.quantity || 0), 0));
+    console.log(  'this.totalProductsCost',this.totalProductsCost());
+   this.totalProductsPrice.set(allProducts.reduce((sum, p) => sum + Number(p.price * p.quantity || 0), 0));
+   console.log(  'this.totalProductsPrice',this.totalProductsPrice());
+
 
     this.calculateRevenueAndTopProducts(deletedOrders);
   }
@@ -80,20 +87,20 @@ export class DashbordComponent {
       .slice(0, 5); // أول 5 منتجات
 
     // نحسب إجمالي الأرباح
-    this.totalRevenue = this.topProducts.reduce((acc: number, p: any) => acc + p.revenue, 0);
+    this.totalRevenue.set(this.topProducts.reduce((acc: number, p: any) => acc + p.revenue, 0));
   }
 
   // نسب الرسم البياني
   getPendingPercent() {
-    return this.totalOrders ? (this.pendingOrders / this.totalOrders) * 100 : 0;
+    return this.totalOrders() ? (this.pendingOrders() / this.totalOrders()) * 100 : 0;
   }
 
   getCompletedPercent() {
-    return this.totalOrders ? (this.completedOrders / this.totalOrders) * 100 : 0;
+    return this.totalOrders() ? (this.completedOrders() / this.totalOrders()) * 100 : 0;
   }
 
   getDeletedPercent() {
-    return this.totalOrders ? (this.deletedOrders / this.totalOrders) * 100 : 0;
+    return this.totalOrders() ? (this.deletedOrders() / this.totalOrders()) * 100 : 0;
   }
 
 // ✅ دالة تحسب أرباح الشهر المحدد من الطلبات المكتملة 
@@ -200,10 +207,11 @@ export class DashbordComponent {
     Number(this.selectedYear)
   );
 
-  this.filteredRevenue = result.revenue;
-  this.filteredCost = result.purchases;
-  this.filteredProfit = result.profit;
-  this.filteredProfitPercentage = result.profitPercentage;
+  this.filteredRevenue.set(result.revenue);
+  this.filteredCost.set(result.purchases);
+  this.filteredProfit.set(result.profit);
+  this.filteredProfitPercentage.set(result.profitPercentage);
+
   }
 
   // نسبة ارباح المبيعات
@@ -229,11 +237,4 @@ export class DashbordComponent {
 
   return +profitPercentage.toFixed(2);
   }
-
-
-
-  
-
-
-
 }
