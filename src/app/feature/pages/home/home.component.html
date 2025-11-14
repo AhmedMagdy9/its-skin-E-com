@@ -23,7 +23,6 @@
             <th class="py-3 px-4 text-left">Quantity</th>
             <th class="py-3 px-4 text-left">Category</th>
             <th class="py-3 px-4 text-left"> ExpiryDate</th>
-            <th class="py-3 px-4 text-left">Description</th>
             <th class="py-3 px-4 text-left">Price</th>
             <th class="py-3 px-4 text-left">Cost</th>
             <th class="py-3 px-4 text-center">Setting</th>
@@ -68,13 +67,6 @@
                   </span>
                 }
               </td>
-
-              <td class="py-3 px-4 text-gray-500 italic">
-                @if (product.description) {
-                  "{{ product.description }}"
-                }
-              </td>
-
               <td class="py-3 px-4 text-[#4A70A9] font-semibold">
                 {{ product.price || 0 }} جنيه
               </td>
