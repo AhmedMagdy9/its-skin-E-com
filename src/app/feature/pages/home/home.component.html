@@ -1,11 +1,11 @@
 
 <div class="min-h-screen relative  px-6">
   
-  <div class="flex justify-center my-6 ">
+  <!-- <div class="flex justify-center my-6 ">
   <input  type="text"  placeholder="Search by name..."  [(ngModel)]="searchTerm"
     class="w-full max-w-lg p-3 rounded-xl shadow-md placeholder:text-black/70   focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 transition"
   />
-</div>
+</div> -->
 
   <h1 class="text-3xl font-bold text-center mb-8 text-blue-900">📦 منتجاتك الحالية</h1>
 
@@ -16,8 +16,8 @@
     </div>
   } @else {
     <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-rose-200 rounded-2xl shadow-md">
-        <thead class="bg-rose-100 text-[#4A70A9]">
+      <table  datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="   min-w-full bg-white border border-gray-500 rounded-2xl shadow-md">
+        <thead class="bg-gray-100 text-[#4A70A9]">
           <tr>
             <th class="py-3 px-4 text-left">Name</th>
             <th class="py-3 px-4 text-left">Quantity</th>
@@ -30,7 +30,7 @@
         </thead>
         <tbody>
           @for (product of products(); track product.id) {
-           @if (product.name.toLocaleLowerCase().includes(searchTerm().toLocaleLowerCase())) {
+           
             <tr class="border-t  hover:bg-rose-50 transition">
             <td class="py-3 px-4 font-medium text-rose-700">
                <div class="relative group w-fit">
@@ -75,15 +75,15 @@
               </td>
 
               <td class="py-3 px-4 flex flex-col gap-3 lg:flex-row justify-between ">
-                <button (click)="addToCart(product)" class="bg-green-400 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-300" >
-                 Add To Cart </button>
-                <button (click)="startEdit(product)" class="bg-yellow-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-yellow-800 transition-colors duration-300" >
-                 Update </button>
-                <button (click)="deleteProduct(product.id)" class="bg-rose-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-rose-700 transition-colors duration-300" >
-                 Remove </button>
+
+               <button (click)="addToCart(product)" class=" text-white px-3 py-2 rounded-xl hover:bg-gray-300 transition">🛒</button>
+
+               <button (click)="startEdit(product)" class=" text-white px-3 py-2 rounded-xl hover:bg-gray-300 transition" >🛠️</button>
+
+                <button (click)="deleteProduct(product.id)" class=" text-white px-3 py-2 rounded-xl hover:bg-gray-300 transition" >🚮</button>
               </td>
             </tr>
-           }
+           
           }
         </tbody>
       </table>

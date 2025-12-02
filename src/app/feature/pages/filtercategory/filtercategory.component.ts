@@ -14,7 +14,7 @@ import { CartService } from '../../../core/services/cart/cart.service';
   styleUrl: './filtercategory.component.scss'
 })
 export class FiltercategoryComponent {
-
+  filterApplied = false;
   categories:WritableSignal<string[]> = signal <string[]>([])
   brands:WritableSignal<string[]> = signal <string[]>([])
   selectedCatOrBrand:WritableSignal<string> =signal('');
@@ -39,6 +39,7 @@ export class FiltercategoryComponent {
   }
 
   filterProducts(filterWord: string): void {
+  this.filterApplied = true;
   const allProducts = this.productService.getAll();
   this.filteredProducts.set(allProducts.filter(p => p.category === filterWord || p.brand === filterWord));
   }

@@ -3,8 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -28,4 +26,19 @@
 
 .bg-main{
   @apply bg-gradient-to-r  from-gray-500 to-purple-300 ;
+}
+
+
+/* تعديل الـ container بتاع البحث */
+
+
+#DataTables_Table_0_wrapper  input{
+   width: 90%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #e7eef7;
+  font-size: 15px;
+  color: #123;
 }

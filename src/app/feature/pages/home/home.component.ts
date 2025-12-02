@@ -1,20 +1,28 @@
 import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotyfService } from '../../../core/services/notyf/notyf.service';
-import { ExpensesComponent } from "../expenses/expenses.component";
+import { Subject } from 'rxjs';
+import { DataTablesModule } from 'angular-datatables';
+
+
+
+
+
+
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule , CommonModule ,DataTablesModule ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+
 
   private platformid = inject(PLATFORM_ID)
   private cartService = inject(CartService)
@@ -35,18 +43,41 @@ export class HomeComponent {
      description: new FormControl(''),
    });
 
+    dtOptions: any = {};
+  dtTrigger: Subject<any> = new Subject<any>();
+
+
   ngOnInit(): void {
+    
+      this.dtOptions = {
+      pagingType: 'full_numbers',
+      pageLength: 5,
+      processing: true
+    };
+
    if (isPlatformBrowser(this.platformid)) {
      this.loadProducts();
      this.categories.set(this.productService.categories)
    }
   }
 
+
+
   loadProducts(): void {
     this.products.set(this.productService.getAll()) ;
-    console.log( this.products())
-   
+
   }
+
+    ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.dtTrigger.next(null); // DataTable يتفعل بعد render
+    }, 0);
+  }
+
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+  }
+
 
  deleteProduct(id: string): void {
     this.productService.delete(id);
@@ -121,4 +152,5 @@ export class HomeComponent {
     this.editForm.reset();
   }
 
+ 
 }
