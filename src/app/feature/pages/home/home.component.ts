@@ -39,6 +39,7 @@ export class HomeComponent {
      quantity: new FormControl(0, [Validators.required, Validators.min(1)]),
      price: new FormControl<number | null>(null, [Validators.min(1)]),
      Cost: new FormControl<number | null>(null, [Validators.min(1)]),
+     expiryDate: new FormControl<string | null>(null),
      lowStockThreshold: new FormControl<number | null>(null),
      description: new FormControl(''),
    });
