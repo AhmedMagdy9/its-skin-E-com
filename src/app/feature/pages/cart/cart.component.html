@@ -1,8 +1,8 @@
 <div class="  px-6">
-  <h1 class="text-3xl font-bold text-center mb-8 text-blue-900">🛒 Cart</h1>
+  <h1 class="text-3xl font-bold text-center mb-8 text-color3">🛒 Cart</h1>
 
   @if (cartItems().length === 0) {
-    <div class="text-center text-[#4A70A9]">
+    <div class="text-center text-color3">
       مفيش منتجات في الكارت دلوقتي 😅
     </div>
   }
@@ -13,19 +13,19 @@
         <div class="bg-white p-4 rounded-2xl shadow flex items-center justify-between">
           <div>
             <h2 class="font-semibold text-lg">{{ item.name }}</h2>
-            <p class="text-[#4A70A9]">السعر: {{ item.price }} EGP</p>
+            <p class="text-color3">السعر: {{ item.price }} EGP</p>
           </div>
 
           <div class="flex items-center gap-3">
-            <input type="number" min="1" [value]="item.quantity" (change)="updateQuantity(item.id, $event)" class="w-16 border rounded px-2 text-center"/>
+            <input type="number" min="1" [value]="item.quantity" (change)="updateQuantityfire(item.id, $event)" class="w-16 border rounded px-2 text-center"/>
             <button (click)="removeItem(item.id)" class="text-red-500 cursor-pointer hover:text-red-700">🗑️</button>
           </div>
         </div>
       }
 
       <div class="flex justify-between items-center mt-6 border-t pt-4">
-        <h2 class="text-xl font-bold">الإجمالي: {{ getTotal() }} EGP</h2>
-        <button (click)="clearCart()"  class="bg-[#4A70A9] cursor-pointer text-white px-4 py-2 rounded hover:bg-[#4A70A9]" >
+        <h2 class="text-xl text-white font-bold">Total price : {{ getTotal() }} EGP</h2>
+        <button (click)="clr()"  class="bg-[#4A70A9] cursor-pointer text-white px-4 py-2 rounded hover:bg-[#4A70A9]" >
           تفريغ الكارت
         </button>
       </div>
@@ -33,15 +33,15 @@
   }
 </div>
 
-<div class=" min-h-screen flex items-center justify-center bg-main py-10 px-6">
-  <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-8 w-full max-w-md border border-rose-100">
-    <h2 class="text-2xl font-bold text-center text-[#4A70A9] mb-6">بيانات العميل</h2>
+<div class=" min-h-screen flex items-center justify-center  py-10 px-6">
+  <div class=" backdrop-blur-md rounded-2xl shadow-lg p-8 w-full max-w-md border border-rose-100">
+    <h2 class="text-2xl font-bold text-center text-color3 mb-6">بيانات العميل</h2>
 
     <form [formGroup]="orderForm" (ngSubmit)="submitOrder()" class="space-y-5">
 
-      <!-- 🧍 اسم العميل -->
+      <!-- customer name  -->
       <div>
-        <label class="block text-[#8FABD4] mb-2 font-medium">اسم العميل</label>
+        <label class="block text-color3 mb-2 font-medium">اسم العميل</label>
         <input
           type="text"
           formControlName="customerName"
@@ -53,9 +53,9 @@
         }
       </div>
 
-      <!-- 📞 رقم الهاتف -->
+      <!-- phone -->
       <div>
-        <label class="block text-[#8FABD4] mb-2 font-medium">رقم الهاتف</label>
+        <label class="block text-color3 mb-2 font-medium">رقم الهاتف</label>
         <input
           type="text"
           formControlName="phone"
@@ -67,9 +67,9 @@
         }
       </div>
 
-      <!-- 🏠 العنوان -->
+      <!-- address -->
       <div>
-        <label class="block text-[#8FABD4] mb-2 font-medium">العنوان</label>
+        <label class="block text-color3 mb-2 font-medium">العنوان</label>
         <textarea
           formControlName="address"
           rows="3"
@@ -81,7 +81,7 @@
         }
       </div>
 
-      <!-- 🩷 الزر -->
+      
       <button type="submit" class="w-full cursor-pointer bg-[#8FABD4] text-white font-semibold py-3 rounded-xl shadow-md hover:bg-[#4A70A9] transition-all duration-200" >
         تأكيد الطلب
       </button>

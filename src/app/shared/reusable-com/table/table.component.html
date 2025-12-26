@@ -1,0 +1,60 @@
+
+
+<div class="min-h-screen relative px-6 table-3d">
+<div class="overflow-x-auto table-face ">
+ <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="min-w-full  bg-color2 rounded-2xl shadow-custom">
+<thead class="bg-color2 text-[#4A70A9]">
+  <tr id="header">
+    @for (col of columns; track col) {
+      <th class="py-3 px-4 text-color3">{{ col.label }}</th>
+    }
+    <th class="py-3 px-4 text-color3 ">Actions</th>
+  </tr>
+</thead>
+ <tbody>
+    @for (row of rows; track row.id; let rowIndex = $index) {
+    <tr class="border-t   transition">
+
+    @for (col of columns; track col.key) {
+      
+      <!-- 1- Index -->
+      @if (col.key === 'index') {
+        <td class="py-3 px-4 text-gray-600 text-center">
+          {{ rowIndex + 1 }}
+        </td>
+      }
+      <!-- 2- Items -->
+      @else if (col.label === 'Items') {
+        <td class="py-3 px-4 text-center text-gray-600">
+          <ul class="list-disc list-inside space-y-1">
+            @for (item of row.items; track item.id) {
+              <li>{{ item.name }} × {{ item.quantity }} </li>
+              
+            }
+          </ul>
+        </td>
+      }
+      <!-- 3- Text -->
+      @else {
+        <td class="py-3 px-4  text-gray-600 text-center ">
+          {{ row[col.key] }}
+        </td>
+      }
+
+    }
+    <!-- actions -->
+    <td class=" flex flex-col  lg:flex-row justify-evenly ">
+      @for (action of actions; track $index) {
+        <button   (click)="action.callback(row)"  class="text-white px-3 py-2 rounded-xl hover:bg-gray-300 transition">
+          {{ action.name }}
+        </button>
+      }
+    </td>
+  </tr>
+}
+  </tbody>
+</table>
+</div>
+ <div class="table-left"></div>
+  <div class="table-bottom"></div>
+</div>

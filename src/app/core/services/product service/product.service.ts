@@ -1,6 +1,15 @@
+
 import { Product } from './../../../shared/interfaces/product';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { addDoc, collection, deleteDoc, doc,  getDoc,  getDocs , query, setDoc, updateDoc, where } from "firebase/firestore";
+import { db } from '../../../firebase.config';
+
+
+
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -9,127 +18,76 @@ export class ProductService {
 
 private storageKey = 'products';
 products!:Product[]
-private platformid = inject(PLATFORM_ID)
 categories = ["شامبو",  "بلسم",  "ليف ان",  "سيرم شعر","ماسك شعر" ,   "تريتمنت", "سبوت تريتمنت" ,   "غسول",  "غسول زيتي", "مرطب",   "صن سكرين",   "سيرم",  "ايسنس",  "تونر",  "مقشر", "كريم عين", "ماسك وجة" , "شفرات سكرين"];
 
-constructor() {
-    if (isPlatformBrowser(this.platformid)) {
-    // ✅ نقرأ المنتجات من localStorage أو نبدأ بـ array فاضية
-    const saved = localStorage.getItem(this.storageKey);
-    this.products = saved ? JSON.parse(saved) : [];
 
-    // ✅ تأكد دايمًا إنها Array حتى لو في مشكلة في التخزين
-    if (!Array.isArray(this.products)) {
-      this.products = [];
-    }
-      
-    }
-     
-}
 
-// جلب كل المنتجات
-getAll(): Product[] {
-  if (isPlatformBrowser(this.platformid)) {
-    const products = localStorage.getItem('products');
-    const parsedProducts: Product[] = products ? JSON.parse(products) : [];
-    // 🔤 ترتيب أبجدي عام لأي لغة (عربي / إنجليزي / غيره)
-    parsedProducts.sort((a, b) =>
-      a.name.localeCompare(b.name, 'default', { sensitivity: 'base' })
+  async getAllProducts(): Promise<Product[]> {
+   const snap = await getDocs(collection(db, 'products'));
+
+   return snap.docs.map(d => {
+   const data = d.data() as Partial<Omit<Product, 'id'>>;
+
+   return {
+      id: d.id,
+      isFavorite: data.isFavorite ?? false,
+      Cost: data.Cost ?? 0,
+      quantity: data.quantity ?? 0,
+      price: data.price ?? 0,
+      addedDate: data.addedDate ?? new Date().toISOString(),
+      name: data.name ?? '',
+      category: data.category ?? '',
+      brand: data.brand ?? '',
+      description: data.description ?? '',
+      lowStockThreshold: data.lowStockThreshold ?? 0,
+      expiryDate: data.expiryDate ?? '',
+      imageUrl: data.imageUrl ?? ''
+          };
+     });
+  }
+
+  addProduct(product: any) {
+    return addDoc(collection(db, 'products'), product);
+  }
+
+  // return product to stock
+  async restoreProductToStock(product: Product) {
+   const productRef = doc(db, 'products', product.id);
+
+   const snap = await getDoc(productRef);
+
+   if (snap.exists()) {
+   const data = snap.data() as Product;
+
+    // product exists
+    return updateDoc(productRef, {
+      quantity: data.quantity + product.quantity
+    });
+  } else {
+   //  product doesn't exist return 
+    return setDoc(productRef, {
+      ...product
+    });
+  }
+  }
+
+  updateProduct(id:string, data: any) {
+    return updateDoc(doc(db, 'products', id), data);
+  }
+
+  deleteProduct(id: string) {
+    return deleteDoc(doc(db, 'products', id));
+  }
+
+  async getByCategory(category: string) {
+   const q = query(
+    collection(db, 'products'),
+    where('category', '==', category)
     );
 
-    return parsedProducts;
-  } else {
-    // لو مش في المتصفح (زي وقت الـ build)
-    return [];
-  }
-}
-
-//  حفظ المنتجات في localStorage
-private saveProducts() {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.products));
-}
-
-outSaveProducts(products:Product[]) {
-    localStorage.setItem(this.storageKey, JSON.stringify(products));
-}
-
-// اضافة منتج جديد 
-add(product: Product): void {
-  // أولًا نجيب كل المنتجات المخزنة حاليًا
-  this.products = this.getAll();
-
-  // نتحقق هل المنتج موجود أصلًا ولا لأ
-  const existingProductIndex = this.products.findIndex(
-    (p) =>
-      p.name.trim().toLowerCase() === product.name.trim().toLowerCase()   
-  );
-
-  if (existingProductIndex !== -1) {
-    // ✅ المنتج موجود → نزود الكمية
-    const existingProduct = this.products[existingProductIndex];
-    existingProduct.quantity += product.quantity;
-
-    // لو السعر الجديد مختلف ممكن نحدثه برضو لو حبيت
-    if (product.price && product.price !== existingProduct.price) {
-      existingProduct.price = product.price;
-    }
-
-    // ممكن نحدث تاريخ الإضافة لو عايز تعتبرها "آخر تحديث"
-    existingProduct.addedDate = new Date().toISOString();
-
-    console.log('🔁 تم تحديث الكمية:', existingProduct);
-  } else {
-    // 🆕 المنتج جديد → نضيفه
-    this.products.push({
-      ...product,
-      id: Date.now().toString(),
-      addedDate: new Date().toISOString(),
-    });
-    console.log('✅ تمت إضافة منتج جديد:', product);
+   const snap = await getDocs(q);
+   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   }
 
-  // حفظ التغييرات في localStorage
-  localStorage.setItem(this.storageKey, JSON.stringify(this.products));
-
-  console.log('📦 الحالة النهائية للمنتجات:', this.products);
-}
-
-// حذف منتج من المخزون 
-delete(id: string): void {
-    const products = this.getAll().filter(p => p.id !== id);
-    localStorage.setItem(this.storageKey, JSON.stringify(products));
-}
-
-// حذف جميع المنتجات
-clearAll(): void {
-    localStorage.removeItem(this.storageKey);
-}
-
-//  تقليل الكمية لمنتج معين
-decreaseQuantity(productId: string, amount: number = 1): void {
-  const found = this.products.find((p: Product) => p.id === productId);
-  if (found) {
-    found.quantity = Math.max(found.quantity - amount, 0); // مننزلش عن الصفر
-    this.saveProducts();
-  }
-}
-
-// ✅ تزويد الكمية لما نحذف أو نقلل من الكارت
-increaseQuantity(productId: string, amount: number = 1, productData?: Product): void {
-  let found = this.products.find((p: Product) => p.id === productId);
-
-  if (found) {
-    // ✅ لو المنتج موجود نزود الكمية
-    found.quantity += amount;
-  } else if (productData) {
-    // ✅ لو المنتج مش موجود نرجعه تاني بالبيانات اللي كانت في الكارت
-    this.products.push({
-      ...productData,
-      quantity: amount
-    });
-  }
-
-  this.saveProducts();
-}
-
+  
 }

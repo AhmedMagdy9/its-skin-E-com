@@ -1,10 +1,12 @@
-import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { OrdersService } from '../../../core/services/orders.service';
 import { DeleteorderService } from '../../../core/services/deleteorder/deleteorder.service';
 import { ProductService } from '../../../core/services/product service/product.service';
 import { CurrencyPipe, DecimalPipe, isPlatformBrowser} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../shared/interfaces/product';
+import { Order } from '../../../shared/interfaces/order';
+
 
 @Component({
   selector: 'app-dashbord',
@@ -15,6 +17,9 @@ import { Product } from '../../../shared/interfaces/product';
 })
 export class DashbordComponent {
   private platformid = inject(PLATFORM_ID)
+  private orders: WritableSignal<Order[]> = signal<Order[]>([]);
+  private allDeletedOrders: WritableSignal<Order[]> = signal<Order[]>([]);
+  private allProducts: WritableSignal<Product[]> = signal<Product[]>([]);
   totalOrders = signal(0);
   pendingOrders = signal(0);
   completedOrders = signal(0);
@@ -44,28 +49,27 @@ export class DashbordComponent {
    }
   }
 
-  loadDashboardData() {
-   const orders = this.orderService.getAllOrders(); // كل الطلبات
-   const deletedOrders = this.deleteorderService.getAllDeletedOrders(); // الطلبات المحذوفة (اللي تعتبر مكتملة فعليًا)
-   this.totalOrders.set(orders.length);
-   this.pendingOrders.set(orders.filter(o => o.status === 'pending').length);
-   this.completedOrders.set(orders.filter(o => o.status === 'completed').length);
-   this.deletedOrders.set(deletedOrders.length);
-   const allProducts = this.productService.getAll(); 
-   console.log(  'allProducts',allProducts);
-   this.totalProducts.set(allProducts.length);
-   this.totalProductsCost.set(allProducts.reduce((sum, p) => sum + Number(p.Cost * p.quantity || 0), 0));
+async  loadDashboardData() {
+   this.orders.set(await this.orderService.getAllOrdersfire());  // all orders   
+   this.allDeletedOrders.set(await this.deleteorderService.getAllCompletedOrders()) ; // completed orders
+   this.totalOrders.set(this.orders().length);
+   this.pendingOrders.set(this.orders().filter(o => o.status === 'pending').length);
+   this.completedOrders.set(this.orders().filter(o => o.status === 'completed').length);
+   this.deletedOrders.set(this.allDeletedOrders().length);
+   this.allProducts.set(await this.productService.getAllProducts()) ; 
+   console.log(  'allProducts',this.allProducts());
+   this.totalProducts.set(this.allProducts().length);
+   this.totalProductsCost.set(this.allProducts().reduce((sum, p) => sum + Number(p.Cost * p.quantity || 0), 0));
     console.log(  'this.totalProductsCost',this.totalProductsCost());
-   this.totalProductsPrice.set(allProducts.reduce((sum, p) => sum + Number(p.price * p.quantity || 0), 0));
+   this.totalProductsPrice.set(this.allProducts().reduce((sum, p) => sum + Number(p.price * p.quantity || 0), 0));
    console.log(  'this.totalProductsPrice',this.totalProductsPrice());
 
 
-    this.calculateRevenueAndTopProducts(deletedOrders);
+    this.calculateRevenueAndTopProducts(this.allDeletedOrders());
   }
 
   calculateRevenueAndTopProducts(deletedOrders: any[]) {
-    const productStats: any = {}; // لتجميع المنتجات
-
+    const productStats: any = {}; // sum of sold and revenue
     deletedOrders.forEach(order => {
       order.items.forEach((item: any) => {
         if (!productStats[item.name]) {
@@ -75,22 +79,21 @@ export class DashbordComponent {
             revenue: 0
           };
         }
-
         productStats[item.name].sold += item.quantity;
         productStats[item.name].revenue += item.price * item.quantity;
       });
     });
 
-    // نحولها لمصفوفة ونرتبها
+    // transform object to array
     this.topProducts = Object.values(productStats)
       .sort((a: any, b: any) => b.sold - a.sold)
-      .slice(0, 5); // أول 5 منتجات
+      .slice(0, 5); // start from index 5
 
-    // نحسب إجمالي الأرباح
+    // calculate total revenue
     this.totalRevenue.set(this.topProducts.reduce((acc: number, p: any) => acc + p.revenue, 0));
   }
 
-  // نسب الرسم البياني
+  // chart profit
   getPendingPercent() {
     return this.totalOrders() ? (this.pendingOrders() / this.totalOrders()) * 100 : 0;
   }
@@ -103,23 +106,20 @@ export class DashbordComponent {
     return this.totalOrders() ? (this.deletedOrders() / this.totalOrders()) * 100 : 0;
   }
 
-// ✅ دالة تحسب أرباح الشهر المحدد من الطلبات المكتملة 
-  getMonthlyRevenueAndProfit(month: number | string, year: number | string): { revenue: number; profit: number; profitPercentage: number; purchases: number;} {
-  const deletedOrders = this.deleteorderService.getAllDeletedOrders();
-  const allProducts = this.productService.getAll();
-
+//  to calculate monthly revenue and profit from deleted orders
+ getMonthlyRevenueAndProfit(month: number | string, year: number | string): { revenue: number; profit: number; profitPercentage: number; purchases: number;} {
   // 🧩 تحويل الشهر والسنة لأرقام واضحة
   const selectedMonth = Number(month);
   const selectedYear = Number(year);
 
   // ✅ فلترة الطلبات حسب الشهر والسنة
-  const monthlyOrders = deletedOrders.filter(order => {
+  const monthlyOrders = this.allDeletedOrders().filter(order => {
     const [orderYear, orderMonth] = order.date.split('-').map(Number);
     return orderMonth === selectedMonth && orderYear === selectedYear;
   });
 
   // ✅ فلترة المنتجات الجديدة حسب الشهر والسنة
-  const monthlyProducts = allProducts.filter((p: any) => {
+  const monthlyProducts = this.allProducts().filter((p: any) => {
     if (!p.addedDate) return false;
     const date = new Date(p.addedDate);
     if (isNaN(date.getTime())) return false;
@@ -131,11 +131,11 @@ export class DashbordComponent {
 
   // 💰 حساب المبيعات والتكلفة من الطلبات
   const  {totalRevenue , totalOrderCost} = this.calculateOrderRevenue(monthlyOrders);
-  const {totalCost}  = this.calculateOrderCost(deletedOrders ,selectedMonth ,selectedYear  )
+  const {totalCost}  = this.calculateOrderCost(this.allDeletedOrders() ,selectedMonth ,selectedYear  )
 
   // 🏪 حساب تكلفة المنتجات الجديدة في المخزون
   const totalStockPurchases = this.calculateStockPurchases(monthlyProducts);
-  // console.log( 'المخزون' , this.calculateStockPurchases(monthlyProducts));
+  
 
   // 💹 حساب الربح ونسبة الربح من الطلبات فقط
   const totalProfit = totalRevenue - totalOrderCost;
@@ -153,7 +153,7 @@ export class DashbordComponent {
   }
 
 
-// 📦 دالة لحساب مبيعات الطلبات
+//  to calculate total revenue from orders 
   calculateOrderRevenue(orders: any[]): { totalRevenue: number; totalOrderCost: number } {
   let totalRevenue = 0;
   let totalOrderCost = 0;
@@ -172,14 +172,14 @@ export class DashbordComponent {
   return { totalRevenue, totalOrderCost };
   }
 
-  // 📦 دالة لحساب مشتريات الطلبات
+  //  to calculate total cost from orders
   calculateOrderCost(orders: any[], selectedMonth: number, selectedYear: number): { totalCost: number } {
   let totalCost = 0;
 
   orders.forEach(order => {
     order.items?.forEach((item: any) => {
       const itemDate = new Date(item.addedDate);
-      const itemMonth = itemDate.getMonth() + 1; // getMonth بيرجع من 0 → 11
+      const itemMonth = itemDate.getMonth() + 1; // getMonth returns 0 → 11
       const itemYear = itemDate.getFullYear();
 
       if (itemMonth === selectedMonth && itemYear === selectedYear) {
@@ -192,7 +192,7 @@ export class DashbordComponent {
   return { totalCost };
   }
 
-// 🏬 دالة لحساب تكلفة المشتريات من المخزون
+//  to calculate total stock purchases
   calculateStockPurchases(products: any[]): number {
   return products.reduce((sum, p: any) => {
     const cost = +p.Cost  || 0;
@@ -214,7 +214,7 @@ export class DashbordComponent {
 
   }
 
-  // نسبة ارباح المبيعات
+  //  to calculate total profit percentage
   getDeletedOrdersProfitPercentage(): number {
   const deletedOrders = this.deleteorderService.getAllDeletedOrders();
 

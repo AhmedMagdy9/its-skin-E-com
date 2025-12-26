@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { db } from '../../../firebase.config';
 
 
 @Injectable({
@@ -7,61 +9,85 @@ import { Product } from '../../../shared/interfaces/product';
 })
 export class CartService {
 
-   private cartKey = 'cart_items';
+  
+ // ===== Get All Cart Products =====
+  async getAllCartProducts(): Promise<Product[]> {
+    const snap = await getDocs(collection(db, 'cart'));
 
-  constructor() { }
+    return snap.docs.map(d => {
+      const data = d.data() as Partial<Omit<Product, 'id'>>;
 
-  // ✅ جلب كل المنتجات من الكارت
-  getCartItems() {
-    const items = localStorage.getItem(this.cartKey);
-    return items ? JSON.parse(items) : [];
+      return {
+        id: d.id,
+        isFavorite: data.isFavorite ?? false,
+        Cost: data.Cost ?? 0,
+        quantity: data.quantity ?? 1, // cart products quantity
+        price: data.price ?? 0,
+        addedDate: data.addedDate ?? new Date().toISOString(),
+        name: data.name ?? '',
+        category: data.category ?? '',
+        brand: data.brand ?? '',
+        description: data.description ?? '',
+        lowStockThreshold: data.lowStockThreshold ?? 0,
+        expiryDate: data.expiryDate ?? '',
+        imageUrl: data.imageUrl ?? ''
+      };
+    });
   }
 
-  // ✅ حفظ التغييرات
-  private saveCart(items: any[]) {
-    localStorage.setItem(this.cartKey, JSON.stringify(items));
-  }
+  // ===== Add Product To Cart (Smart) =====
+async addToCartfire(product: Product) {
+  const cartRef = doc(db, 'cart', product.id);
 
-  // ✅ إضافة منتج للكارت
-  addToCart(product: Product) {
-    const items = this.getCartItems();
-    const existing = items.find((item: any) => item.id === product.id);
-    if (existing) {
-      existing.quantity += 1; // لو موجود زود الكمية
-    } else {
-      items.push({ ...product, quantity: 1 });
-    }
+  const existing = await this.getCartProductById(product.id);
+  console.log('existing', existing);
 
-    this.saveCart(items);
-    console.log("cart" , product)
-  }
-
-  // ✅ تحديث الكمية
-   updateQuantity(productId: string, quantity: number) {
-  const items = this.getCartItems();
-  const item = items.find((p: Product) => p.id === productId);
-  if (!item) return;
-
-  if (quantity <= 0) {
-    this.removeFromCart(productId);
+  if (existing) {
+    // if product is already in cart
+    return this.updateCartProduct(product.id, {
+      quantity: existing.quantity + 1
+    });
   } else {
-    item.quantity = quantity;
+    // if product is not in cart add it
+    return setDoc(cartRef, {
+      ...product,
+      quantity: 1
+    });
   }
-  this.saveCart(items);
-   }
+}
 
 
-  // ✅ حذف منتج من الكارت
-  removeFromCart(productId: string) {
-    let items = this.getCartItems();
-    items = items.filter((p: any) => p.id !== productId);
-    this.saveCart(items);
-  }
-
-  // ✅ تفريغ الكارت بالكامل
-  clearCart() {
-    localStorage.removeItem(this.cartKey);
+  // ===== Update Cart Product =====
+  updateCartProduct(id: string, data: Partial<Product>) {
+    return updateDoc(doc(db, 'cart', id), data);
   }
 
+  // ===== Remove Product From Cart =====
+  removeFromCartfire(id: string) {
+    return deleteDoc(doc(db, 'cart', id));
+  }
+
+  // ===== Get Cart Product By id =====
+async getCartProductById(id: string): Promise<Product | undefined> {
+  const docRef = doc(db, 'cart', id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) return undefined;
+
+  // all data except id
+  const { id: _, ...rest } = docSnap.data() as Product;
+
+  return {
+    id: docSnap.id, // Document ID is the product id
+    ...rest
+  };
+}
+
+ // ===== Clear Cart =====
+  async clearCartfire() {
+    const snap = await getDocs(collection(db, 'cart'));
+    const promises = snap.docs.map(d => deleteDoc(doc(db, 'cart', d.id)));
+    await Promise.all(promises);
+  }
 
 }

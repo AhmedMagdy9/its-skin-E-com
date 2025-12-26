@@ -1,6 +1,6 @@
 
-<div class="min-h-screen bg-main p-10 text-white">
-  <div class="max-w-4xl mx-auto bg-black/50 backdrop-blur-md rounded-3xl shadow-2xl px-8 py-4 animate-[fadeIn_1s_ease-out]">
+<div class="min-h-screen  p-10 text-white">
+  <div class="max-w-4xl mx-auto bg-white/25 backdrop-blur-md rounded-3xl shadow-2xl px-8 py-4 animate-[fadeIn_1s_ease-out]">
 
     <h2 class="text-3xl font-extrabold mb-8 text-center text-white drop-shadow-lg">
       💰 المصروفات النثرية
@@ -45,8 +45,8 @@
 </div>
 
 <div class="w-3/4 mx-auto">
-    <!-- ✅ البحث حسب الشهر -->
-<div class="bg-black/50 p-4 rounded-2xl mb-6">
+   <!--  search by month -->
+<div class="bg-white/25 p-4 rounded-2xl mb-6">
   <label class="block mb-2 font-semibold text-white/90">بحث حسب الشهر:</label>
   <input
     type="month"
@@ -58,40 +58,6 @@
 </div>
 
 
-    <!-- ✅ الجدول -->
-    <div class="overflow-x-auto rounded-2xl shadow-lg">
-      <table class="w-full text-center bg-black/50 backdrop-blur-lg">
-        <thead>
-          <tr class="bg-white/30 text-pink-100">
-            <th class="p-3">الاسم</th>
-            <th class="p-3">المبلغ</th>
-            <th class="p-3">التاريخ</th>
-            <th class="p-3">الملاحظات</th>
-            <th class="p-3">حذف</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (exp of filteredExpenses(); track exp.id) {
-            <tr
-              class="hover:bg-gray-600 transition-all duration-300 border-b border-white/20">
-              <td class="p-3">{{ exp.title }}</td>
-              <td class="p-3">{{ exp.amount }} ج.م</td>
-              <td class="p-3">{{ exp.date }}</td>
-              <td class="p-3">{{ exp.details || '-' }}</td>
-              <td class="p-3">
-                <button (click)="deleteExpense(exp.id)"
-                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full shadow-md hover:scale-110 transition">
-                  🗑️
-                </button>
-              </td>
-            </tr>
-          }
-          @empty {
-            <tr>
-              <td colspan="5" class="p-6 text-white/80">🚫 لا توجد مصروفات لعرضها</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+   <!-- table-->
+   @if (filteredExpenses().length) { <app-table [columns]="ExpensesColumns" [rows]="filteredExpenses()" [actions]="tableActions"></app-table>}
 </div>

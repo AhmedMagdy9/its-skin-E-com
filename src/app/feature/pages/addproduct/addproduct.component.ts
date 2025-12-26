@@ -35,18 +35,14 @@ export class AddproductComponent implements OnInit {
     this.categories.set(this.productService.categories)
   }
 
-  addProduct(): void {
+
+
+  addprductFire(){
     if (this.productForm.valid) {
-      const newProduct: Product = this.productForm.value as Product;
-      newProduct.id = Date.now().toString(); // أو UUID بعدين
-      newProduct.addedDate = new Date().toISOString();
-      this.notyf.success('Product added successfully')
-      this.productForm.reset();
-      // بعدين نحفظه في localStorage أو نضيفه للـ service
-      this.productService.add(newProduct)
-    } else {
-      this.notyf.error('⚠️ Form is invalid')
-    }
+      const { id, ...product } = this.productForm.value;
+      console.log(product)
+      this.productService.addProduct(product)
   }
+}  
 
 }

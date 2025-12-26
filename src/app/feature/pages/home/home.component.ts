@@ -1,12 +1,11 @@
 import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {  isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NotyfService } from '../../../core/services/notyf/notyf.service';
-import { Subject } from 'rxjs';
-import { DataTablesModule } from 'angular-datatables';
+import { NotyfService } from '../../../core/services/notyf/notyf.service';;
+import { TableAction, TableComponent } from "../../../shared/reusable-com/table/table.component";
 
 
 
@@ -17,11 +16,28 @@ import { DataTablesModule } from 'angular-datatables';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule , CommonModule ,DataTablesModule ],
+  imports: [FormsModule, ReactiveFormsModule, TableComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+
+
+
+productColumns = [
+  { label: 'Name', key: 'name' },
+  { label: 'Category', key: 'category' },
+  { label: 'Quantity', key: 'quantity' },
+  { label: 'Expiry', key: 'expiryDate' },
+  { label: 'Price', key: 'price' },
+  { label: 'Cost', key: 'Cost' },
+];
+
+tableActions: TableAction[] = [
+  { name: '🛒',  callback: (row) => this.addToCart(row) },
+  { name: '🛠️', callback: (row) => this.startEdit(row) },
+  { name: '🚮',  callback: (row) => this.deleteProduct(row) },
+];
 
 
   private platformid = inject(PLATFORM_ID)
@@ -31,7 +47,8 @@ export class HomeComponent {
   products:WritableSignal<Product[]> = signal<Product[]>([]);
   categories:WritableSignal<string[]> = signal <string[]>([])
   searchTerm:WritableSignal<string> = signal('');
-  editingProductId:WritableSignal<string | null> = signal(null);
+  toggleForm:WritableSignal<boolean> = signal(false);
+  editingProductId:WritableSignal<string > = signal('');
   editForm: FormGroup = new FormGroup({
      name: new FormControl('', Validators.required),
      brand: new FormControl('', Validators.required),
@@ -44,112 +61,99 @@ export class HomeComponent {
      description: new FormControl(''),
    });
 
-    dtOptions: any = {};
-  dtTrigger: Subject<any> = new Subject<any>();
+ 
 
 
   ngOnInit(): void {
-    
-      this.dtOptions = {
-      pagingType: 'full_numbers',
-      pageLength: 5,
-      processing: true
-    };
-
    if (isPlatformBrowser(this.platformid)) {
-     this.loadProducts();
      this.categories.set(this.productService.categories)
+
+     this.getProducts();
+     
    }
   }
 
 
-
-  loadProducts(): void {
-    this.products.set(this.productService.getAll()) ;
-
+ async getProducts(){
+    let productsfire = await this.productService.getAllProducts()
+    console.log(productsfire)
+    this.products.set(productsfire)
+    
   }
 
-    ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.dtTrigger.next(null); // DataTable يتفعل بعد render
-    }, 0);
-  }
+  
 
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-  }
-
-
- deleteProduct(id: string): void {
-    this.productService.delete(id);
-    this.loadProducts();
+ deleteProduct(product: any): void {
+    this.productService.deleteProduct(product.id)
+     this.getProducts();
     this.notyf.error('Product Deleted successfully')
   }
 
  getExpiryColor(expiryDate: string): string {
   const today = new Date();
-  // لو التاريخ بالشكل dd/mm/yyyy نحوله ل yyyy-mm-dd
+  // update date format
   if (expiryDate.includes('-')) {
     const [day, month, year] = expiryDate.split('-');
     expiryDate = `${year}-${month}-${day}`;
-    // console.log('بعد' ,expiryDate)
+    
   }
 
   const expiry = new Date(expiryDate);
   const diffInTime = expiry.getTime() - today.getTime();
   const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
 
-  if (diffInDays < 0) return 'text-red-600'; // منتهي
-  else if (diffInDays <= 60) return 'text-yellow-600'; // باقي أقل من شهرين
-  else return 'text-green-600'; // سليم
+  if (diffInDays < 0) return 'text-red-600'; // expired
+  else if (diffInDays <= 60) return 'text-yellow-600'; // expiring soon 2 manths
+  else return 'text-green-600'; // not expired
   }
+  
 
- addToCart(product: any) {
-  // ✅ 1. أضف المنتج للكارت
-  this.cartService.addToCart(product);
-
-  // ✅ 2. قلل الكمية في السيرفس
-  this.productService.decreaseQuantity(product.id);
-
-  // ✅ 3. هات النسخة الجديدة من المنتج بعد التحديث
-  const updatedProduct = this.productService.getAll().find((p: any) => p.id === product.id);
-
-  // ✅ 4. لو الكمية وصلت صفر احذفه
-  if (updatedProduct && updatedProduct.quantity === 0) {
-    this.deleteProduct(product.id);
-  }
+async addToCart(product: any) {
+ 
+if (product.quantity <= 0) {
+  this.notyf.error('Product out of stock')
+  return
+}
+  await this.productService.updateProduct(product.id, {quantity: product.quantity - 1 });
+  this.cartService.addToCartfire(product);
 
   this.notyf.success('Product added successfully')
-  // ✅ 5. حدث الليستة في الصفحة
-  this.loadProducts();
+   //  update  list table
+   this.getProducts();
 
  
   }
 
-  // بدء التعديل على منتج معين
-  startEdit(product: Product) {
+  // start edit
+  startEdit(product: any) {
     this.editingProductId.set(product.id); 
+    this.toggleForm.set(true);
     this.editForm.patchValue(product);
   }
 
-  // حفظ التعديلات
-  saveEdit() {
-    if (!this.editingProductId) return;
-    console.log(this.editForm.value)
-    const index = this.products().findIndex(p => p.id === this.editingProductId());
-    if (index !== -1) {
-      this.products()[index] = { ...this.products()[index], ...this.editForm.value };
-      this.productService.outSaveProducts(this.products());
-      this.editingProductId.set(null);
-      this.editForm.reset();
-      this.loadProducts();
-      this.notyf.success('Product updated successfully')
-    }
-  }
+  // save edit
+async saveEdit() {
+  if (!this.editingProductId()) return;
+  const id = this.editingProductId();
+  const updatedData = this.editForm.value;
 
-  // إلغاء التعديل
+  try {
+    // 1️⃣ update Firestore
+    await this.productService.updateProduct(id, updatedData);
+    // 3️⃣ Cleanup
+    this.toggleForm.set(false);
+    this.editForm.reset();
+     this.getProducts();
+    this.notyf.success('Product updated successfully');
+  } catch (error) {
+    console.error(error);
+    this.notyf.error('Update failed');
+  }
+}
+
+  // cancel edit
   cancelEdit() {
-    this.editingProductId.set(null);
+    this.toggleForm.set(false);
     this.editForm.reset();
   }
 

@@ -30,8 +30,10 @@ export class OrdersComponent {
     }
   }
 
-  loadOrders() {
-    this.allOrders.set(this.orderService.getAllOrders());
+ async loadOrders() {
+
+   this.allOrders.set( await this.orderService.getAllOrdersfire());
+    console.log(this.allOrders());
   }
 
   get pendingOrders() {
@@ -43,64 +45,29 @@ export class OrdersComponent {
   }
 
   markAsCompleted(id: string) {
-    this.orderService.updateOrderStatus(id, 'completed');
+    this.orderService.updateOrderfire(id, { status: 'completed' });
    this.notyf.success('order Delevary successfully')
     this.loadOrders();
   }
 
   complated(order: Order  ) {
-
-    this.deletedOrdersService.addDeletedOrder(order);
-
-    this.orderService.deleteOrder(order.id);
+    this.deletedOrdersService.addCompletedOrder(order);
+    this.orderService.deleteOrderfire(order.id);
     this.notyf.success('order completed successfully')
     this.loadOrders();
   }
 
-deleteOrder(order: Order) {
-  const products = order.items;
-  const allProducts: Product[] = this.productService.getAll(); // كل المنتجات الحالية في المخزون
+  deleteOrder(order: Order) {
+     this.orderService.deleteOrderfire(order.id);
+    
+     order.items.forEach(p => {
+       this.productService.restoreProductToStock(p);
+     });
 
-   products.forEach((p: any) => {
-    const existingProduct = allProducts.find(prod => prod.id === p.id);
-
-    if (existingProduct) {
-      // ✅ المنتج موجود: رجّع الكمية
-      existingProduct.quantity += p.quantity;
-    } else {
-      // ✅ المنتج مش موجود: أضفه كـ Product جديد بنفس القيم
-      const newProduct: Product = {
-        id: p.id,
-        name: p.name || 'Unnamed Product',
-        brand: p.brand || 'Unknown',
-        category: p.category || 'Uncategorized',
-        quantity: p.quantity || 0,
-        price: +p.price || 0,
-        Cost: +p.Cost || 0,
-        expiryDate: p.expiryDate || '',
-        addedDate: new Date().toISOString(),
-        description: p.description || '',
-        imageUrl: p.imageUrl || '',
-        lowStockThreshold: p.lowStockThreshold || 0,
-        isFavorite: p.isFavorite || false,
-      };
-
-      allProducts.push(newProduct);
-    }
-  });
-
-  // ✅ خزّن التغييرات في المخزون بعد التعديل
-  this.productService.outSaveProducts(allProducts);
-
-  // ✅ امسح الأوردر
-  this.orderService.deleteOrder(order.id);
-
-  // ✅ إشعار نجاح
-  this.notyf.success('Order deleted successfully, stock updated.');
-
-  // ✅ تحديث القائمة
-  this.loadOrders();
-}
+     this.notyf.success('order deleted successfully and stock updated')
+     this.loadOrders();
+     
+  }
 
 
 

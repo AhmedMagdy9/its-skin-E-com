@@ -4,44 +4,44 @@
   ✨  إضافة منتج جديد 
   </h2>
 
-  <!-- فورم إضافة منتج -->
-  <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="space-y-5 animate-[fadeIn_2s_ease-out]" >
-    <!-- الاسم&  الماركة -->
+ <!-- form add product -->
+  <form [formGroup]="productForm" (ngSubmit)="addprductFire()" class="space-y-5 animate-[fadeIn_2s_ease-out]" >
+    <!-- name & brand -->
   <div class="flex justify-between items-center gap-6">
-      <!-- الاسم -->
+      <!-- name -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">اسم المنتج</label>
       <input type="text" formControlName="name" placeholder="مثلاً: كريم ترطيب" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" />
     </div>
 
-    <!-- الماركة -->
+    <!-- brand -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">الماركة</label>
       <input type="text" formControlName="brand" placeholder="مثلاً: CeraVe أو The Ordinary" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
     </div>
   </div>
 
-  <!-- سعر الشراء  &  سعر البيع  -->
+  <!-- price & cost -->
   <div class="flex justify-between items-center gap-6">
-    <!--  سعر الشراء  -->
+    <!--  cost -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">سعر الشراء </label>
       <input type="number" formControlName="Cost" placeholder="جنيه مصري" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
     </div>
-    <!-- سعر البيع  -->
+    <!-- price -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">سعر البيع </label>
       <input type="number" formControlName="price" placeholder="جنيه مصري" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
     </div>
   </div>
- <!-- الكمية   &  الفئة-->
+  <!-- quantity & category -->
   <div class="flex justify-between items-center gap-6">
-       <!-- الكمية -->
+       <!-- quantity -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">الكمية المتاحة</label>
       <input type="number" formControlName="quantity" placeholder="0" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"/>
     </div>
-        <!-- الفئة -->
+        <!-- category -->
     <div class=" w-full">
       <label class="block text-gray-700 font-medium mb-2">الفئة</label>
       <select formControlName="category" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" >
@@ -54,35 +54,35 @@
 
 
 
- <!-- تاريخ الصلاحية  & الحد الأدنى للكمية -->
+ <!-- expiryDate & lowStockThreshold -->
 <div class="flex justify-between items-center gap-6">
-        <!-- تاريخ الصلاحية -->
+        <!-- expiryDate -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">تاريخ الصلاحية</label>
       <input  type="date" id="expiryDate" formControlName="expiryDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-rose-300 outline-none"/>
 
     </div>
 
-    <!-- الحد الأدنى للكمية -->
+    <!-- lowStockThreshold -->
     <div class=" w-full">
       <label class=" text-gray-700 font-medium mb-2">حد الكمية للتنبيه</label>
       <input type="number" formControlName="lowStockThreshold" placeholder="مثلاً: 5" class="border border-gray-300 rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" />
     </div>
 </div>
 
-    <!-- الوصف -->
+    <!-- description -->
     <div>
       <label class="block text-gray-700 font-medium mb-2">الوصف أو الملاحظات</label>
       <textarea rows="3" formControlName="description" placeholder="مثلاً: مناسب للبشرة الحساسة، يُستخدم صباحًا ومساءً..." class="border border-gray-300 rounded-xl px-4 py-2 w-full resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300" ></textarea>
     </div>
 
-    <!-- المفضلة -->
+    <!-- isFavorite -->
     <div class="flex items-center gap-2">
       <input type="checkbox" formControlName="isFavorite" class="w-4 h-4 accent-purple-600"/>
       <label class="text-gray-700 font-medium">تعيين كمفضل 💜</label>
     </div>
 
-    <!-- زر الإضافة -->
+    <!-- submit-->
     <button [disabled]="productForm.invalid" type="submit" class="w-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-[#8FABD4] text-white py-2 rounded-xl font-semibold hover:bg-[#4A70A9] transition-all duration-500 mt-4 shadow-md hover:shadow-lg">
       إضافة المنتج
     </button>

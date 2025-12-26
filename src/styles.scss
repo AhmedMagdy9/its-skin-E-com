@@ -23,22 +23,117 @@
   }
 }
 
-
-.bg-main{
-  @apply bg-gradient-to-r  from-gray-500 to-purple-300 ;
+.shadow-custom{
+box-shadow: 30px 0px 50px -5px rgba(255, 215, 0, 0.8);
 }
 
+.bg-mainColor{
+ background-color: #222;
+}
+.bg-color2{
+  background-color: #1C1C1C;
+}
+.text-color{
+  color: #ffffff;
+}
+.text-color2{
+  color: #F5F5F5;
+}
+.text-color3{
+  color: #aa9624;
+}
+.btns{
+  background-color: #FFD700;
+  color: black;
+}
 
-/* تعديل الـ container بتاع البحث */
+// style for datatable
 
+div.dt-container div.dt-layout-row{
+  display: block;
+}
 
-#DataTables_Table_0_wrapper  input{
-   width: 90%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: none;
+div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search{
+
+  width: 100%;
+  text-align: center;
+
+}
+
+div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search .dt-input{
+  width: 60%;
+   padding: 18px 14px;
+  background: #222;
+  border: 1px solid #222;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 16px;
   outline: none;
-  background: #e7eef7;
-  font-size: 15px;
-  color: #123;
+  transition: 0.4s;
+}
+
+div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search .dt-input:focus{
+   border-color: #d4af37;
+   box-shadow:
+    0 0 12px rgba(212, 175, 55, 0.7),
+    inset 0 0 8px rgba(212, 175, 55, 0.35);
+}
+
+div.dt-container select.dt-input{
+  width: 100%;
+  padding: 10px 5px;
+  background: #222;
+  border: 1px solid #fff;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: 0.4s;
+}
+
+div.dt-container select.dt-input:focus{
+   border-color: #d4af37;
+   box-shadow:
+    0 0 12px rgba(212, 175, 55, 0.7),
+    inset 0 0 8px rgba(212, 175, 55, 0.35);
+}
+
+div.dt-container label{
+  
+  color: #fff;
+  font-size: 16px; 
+  font-weight: bold;
+ 
+}
+
+div.dt-container  .dt-length{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 16px;
+}
+
+div.dt-container .dt-info{
+  color: #c3bdbd;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+table.dataTable thead th {
+  text-align: center;
+}
+ table.dataTable th.dt-type-numeric{
+  text-align: center;
+ }
+
+ table.dataTable th.dt-type-date{
+  text-align: center;
+ }
+
+  table.dataTable td.dt-type-numeric{
+    text-align: center;
+  }
+table.dataTable td.dt-type-date {
+    text-align: center;
 }

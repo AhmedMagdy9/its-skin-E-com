@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NotyfService } from '../../../core/services/notyf/notyf.service';
+import { LinksComponent } from "../../../shared/reusable-com/links/links.component";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink , RouterLinkActive ],
+  imports: [RouterLink, RouterLinkActive, LinksComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })

@@ -9,18 +9,14 @@
 </button>
 
 
-<div class=" relative bg-main">
+<div class=" relative bg-mainColor">
 
   <!-- Navbar (Sidebar) -->
-  <app-navbar 
-    [ngClass]="{'translate-x-0 opacity-100': isNavbarVisible, '-translate-x-24 opacity-0': !isNavbarVisible }"
-    class="transition-all duration-500 ease-in-out"
-  >
+  <app-navbar  [ngClass]="{'translate-x-0 opacity-100': isNavbarVisible, '-translate-x-24 opacity-0': !isNavbarVisible }" class="transition-all duration-500 ease-in-out">
   </app-navbar>
 
   <!-- Main Content -->
-  <div 
-    class="flex-1  py-20 lg:py-10 transition-all duration-500"
+  <div  class="flex-1  py-20 lg:py-10 transition-all duration-500"
     [class.lg:ml-60]="isNavbarVisible"
     [class.lg:ml-0]="!isNavbarVisible">
   

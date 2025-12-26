@@ -4,7 +4,7 @@
       <i class="fa-solid fa-filter text-2xl"></i>
       Filter Products 
       </h1>
-    <!-- ✅ اختيار الفئة -->
+    <!-- choose category or brand -->
     <div class="flex flex-col md:flex-row gap-4 mb-6 items-center justify-center">
       <select
         [(ngModel)]="selectedCatOrBrand"
@@ -25,7 +25,7 @@
       </button>
     </div>
 
-    <!-- ✅ عرض المنتجات -->
+    <!-- display products -->
     @if (filteredProducts().length > 0) {
       <div class="grid md:grid-cols-2 gap-6 mt-6">
         @for (product of filteredProducts(); track product.id) {

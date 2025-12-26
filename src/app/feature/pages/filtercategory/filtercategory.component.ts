@@ -15,6 +15,7 @@ import { CartService } from '../../../core/services/cart/cart.service';
 })
 export class FiltercategoryComponent {
   filterApplied = false;
+  allProducts:WritableSignal<Product[]> = signal<Product[]>([])
   categories:WritableSignal<string[]> = signal <string[]>([])
   brands:WritableSignal<string[]> = signal <string[]>([])
   selectedCatOrBrand:WritableSignal<string> =signal('');
@@ -26,44 +27,38 @@ export class FiltercategoryComponent {
   constructor(private productService: ProductService) {}
 
 
-  ngOnInit(): void {
+ngOnInit(): void {
    if (isPlatformBrowser(this.platformid)) {
-     // ✅ استرجاع الفئات من كل المنتجات 
-    const allProducts = this.productService.getAll();
-    this.categories.set([...new Set(allProducts.map(p => p.category))]) ;
-     // ✅ استرجاع الشركات من كل المنتجات 
-    const allProductsBrand = this.productService.getAll();
-    this.brands.set([...new Set(allProductsBrand.map(p => p.brand))]);
+     this.getCatBrand();
     
    }
-  }
+}
 
-  filterProducts(filterWord: string): void {
+async getCatBrand() {
+  // get all products
+  const products = await this.productService.getAllProducts();
+  this.allProducts.set(products);
+  // get categories and brands
+  this.categories.set([...new Set(products.map(p => p.category))]);
+  this.brands.set([...new Set(products.map(p => p.brand))]);
+}
+
+filterProducts(filterWord: string): void {
   this.filterApplied = true;
-  const allProducts = this.productService.getAll();
-  this.filteredProducts.set(allProducts.filter(p => p.category === filterWord || p.brand === filterWord));
-  }
+  this.filteredProducts.set(this.allProducts().filter(p => p.category === filterWord || p.brand === filterWord));
+}
 
-
-
-
-  addToCart(product: any) {
-  // ✅ 1. أضف المنتج للكارت
- this.cartService.addToCart(product);
-
-  // ✅ 2. قلل الكمية في السيرفس
-  this.productService.decreaseQuantity(product.id);
-
-  // ✅ 3. هات النسخة الجديدة من المنتج بعد التحديث
-  const updatedProduct = this.productService.getAll().find((p: any) => p.id === product.id);
-
-  // ✅ 4. لو الكمية وصلت صفر احذفه
-  if (updatedProduct && updatedProduct.quantity === 0) {
-     this.productService.delete(product.id);
-  }
-
+async addToCart(product: any) {
+if (product.quantity <= 0) {
+  this.notyf.error('Product out of stock')
+  return
+}
+  await this.productService.updateProduct(product.id, {quantity: product.quantity - 1 });
+  this.cartService.addToCartfire(product);
   this.notyf.success('Product added successfully')
+  this.getCatBrand();
 
- 
-  }
+}
+
+
 }

@@ -34,189 +34,124 @@ orderForm = new FormGroup({
 
 ngOnInit(): void {
     if (isPlatformBrowser(this.platformid)) {
-      this.loadCart();
+      this.get()
      
     }
 }
 
-loadCart() {
-    this.cartItems.set(this.cartService.getCartItems());
+async get(){
+  let cart = await this.cartService.getAllCartProducts()
+  this.cartItems.set(cart)
+  console.log('cartfire' ,cart)
 }
 
-removeItem(id: string) {
-  // 🧩 1. هات المنتج من الكارت قبل ما تمسحه
-  const item = this.cartService.getCartItems().find((p: any) => p.id === id);
-
+async removeItem(id: string) {
+  // given a product from cart before removing it
+  const step1Items = await this.cartService.getAllCartProducts();
+  const  item = step1Items.find((p: Product) => p.id === id);
   if (!item) return; // safety check
-
-  // 🧩 2. احذف المنتج من الكارت
-  this.cartService.removeFromCart(id);
-
-  // 🧩 3. زوّد الكمية أو رجّع المنتج للـ products لو كان اتمسح
-  this.productService.increaseQuantity(id, item.quantity, item);
-
+  // remove product from cart
+  this.cartService.removeFromCartfire(id);
+  // return product to stock
+  this.productService.restoreProductToStock(item)
   this.notyf.error('product Deleted successfully')
-
-  // 🧩 4. حدّث الكارت بعد التغيير
-  this.loadCart();
+  this.get()
 }
 
-// UPDATE
-////////////////////////////////////////////////// 
-updateQuantity(id: string, event: any) {
+async updateQuantityfire(id: string, event: any) {
   const newQty = +event.target.value;
-  const item = this.cartService.getCartItems().find((p: Product) => p.id === id);
+
+  const item = this.cartItems().find((p: Product) => p.id === id);
   if (!item) return;
 
-  const diff = newQty - item.quantity;
+  const productsInStock = await this.productService.getAllProducts();
+  const productInStock = productsInStock.find((p: Product) => p.id === id);
+  if (!productInStock) return;
 
-  if (diff > 0) {
-    // 🧠 رجّع true/false من handleIncreaseQuantity
-    const increased = this.handleIncreaseQuantity(id, diff, event, item);
-    if (!increased) return; // ⛔ لو التزويد فشل، ما تحدّثش الكارت
-  } else if (diff < 0) {
-    this.handleDecreaseQuantity(id, diff, item);
+  const oldCartQty = item.quantity;
+  const stockQty = productInStock.quantity;
+
+    // if quantity is less than or equal to 0
+  if (newQty <= 0) {
+    // return product quantity to stock
+    await this.productService.updateProduct(id, {
+      quantity: stockQty + oldCartQty
+    });
+
+    // remove product from cart
+    await this.cartService.removeFromCartfire(id);
+
+    this.notyf.success('🗑️ Product removed from cart');
+    this.get();
+    return;
   }
 
-  this.cartService.updateQuantity(id, newQty);
+  const diff = newQty - oldCartQty;
+  // 🔴 لو بيزوّد والمخزون مش مكفي
+  if (diff > 0 && stockQty < diff) {
+    this.notyf.error('❌ المخزون غير كافي');
+    event.target.value = oldCartQty; // رجّع الرقم القديم
+    return;
+  }
+
+  // لو مفيش تغيير
+  if (diff === 0) return;
+
+  // 🟢 تحديث المخزون
+  await this.productService.updateProduct(id, {quantity: stockQty - diff});
+
+
+  // 🟢 تحديث الكارت
+  await this.cartService.updateCartProduct(id, { quantity: newQty });
+
   this.notyf.success('✅ Product updated successfully');
-  this.loadCart();
+  this.get();
 }
 
+async clr(){
+  if (this.cartItems()) {
+    this.cartItems().forEach((item) => {
+      this.removeItem(item.id);
+    });
+    this.get()
+    this.notyf.error('cart Deleted successfully')
 
-
-// 🔹 لما المستخدم يدخل 0
-handleZeroQuantity(id: string, newQty: number): boolean {
-  if (newQty === 0) {
-    this.removeItem(id);
-    this.loadCart();
-    return true;
-  }
-  return false;
-}
-
-
-// 🔹 لما المستخدم يزود الكمية
-handleIncreaseQuantity(id: string, diff: number, event: any, item: Product): boolean {
-  const productInStock = this.productService.getAll().find((p: Product) => p.id === id);
-
-  // 🔒 لو المنتج مش موجود في المخزون → ممنوع التزويد
-  if (!productInStock) {
-    this.notyf.error('❌ المنتج غير متوفر في المخزون');
-    event.target.value = item.quantity; // رجّع القيمة القديمة
-    return false; // ❌ فشل التزويد
   }
 
-  // 🔒 لو المخزون أقل من المطلوب
-  if (productInStock.quantity < diff) {
-    this.notyf.error('❌ الكمية المطلوبة غير متوفرة في المخزون');
-    event.target.value = item.quantity; // رجّع القيمة القديمة
-    return false; // ❌ فشل التزويد
-  }
 
-  // ✅ لو تمام، قلل من المخزون
-  this.productService.decreaseQuantity(id, diff);
-
-  // ✅ لو الكمية وصلت صفر امسح المنتج من المخزون
-  const updatedProduct = this.productService.getAll().find((p: Product) => p.id === id);
-  if (updatedProduct && updatedProduct.quantity === 0) {
-    this.productService.delete(id);
-  }
-
-  return true; // ✅ تم التزويد بنجاح
-}
-
-
-
-
-// 🔹 لما المستخدم يقلل الكمية
-handleDecreaseQuantity(id: string, diff: number, item: Product): void {
-  const amountToReturn = Math.abs(diff);
-
-  // 🔍 جِب المنتج من المخزون (لو مش موجود، رجّعه)
-  let productInStock = this.productService.getAll().find((p: Product) => p.id === id);
-
-  if (productInStock) {
-    // ✅ لو موجود، زوّد الكمية
-    this.productService.increaseQuantity(id, amountToReturn);
-  } else {
-    // ✅ لو مش موجود، رجّعه تاني بالبيانات اللي كانت في الكارت
-    this.productService.increaseQuantity(id, amountToReturn, item);
-  }
-
-  // 🧠 مش محتاج نحذف هنا، لأننا بنزوّد مش بنقلل
-}
-
-
-
-// 🔹 التحقق من الكمية المتاحة في المخزون
-validateStock(productInStock: Product, diff: number, event: any, item: Product): boolean {
-  if (productInStock.quantity < diff) {
-    alert('الكمية المطلوبة غير متوفرة في المخزون.');
-    event.target.value = item.quantity;
-    return false;
-  }
-  return true;
-}
-//////////////////////////////////////////////////
-
-clearCart() {
-  // ✅ 1. هات كل المنتجات اللي في الكارت
-  const cartItems = this.cartService.getCartItems();
-
-  // ✅ 2. رجّع الكمية لكل منتج في المخزون
-  cartItems.forEach((item: Product) => {
-    const productInStock = this.productService.getAll().find((p: Product) => p.id === item.id);
-
-    if (productInStock) {
-      // لو المنتج موجود في المخزون → رجعله الكمية
-      this.productService.increaseQuantity(item.id, item.quantity, item);
-    } else {
-      // لو المنتج كان اتحذف من المخزون → أضفه من جديد بالكمية اللي كانت في الكارت
-      const restoredProduct = { ...item, quantity: item.quantity };
-      this.productService.add(restoredProduct);
-    }
-  });
-
-  // ✅ 3. امسح الكارت بعد استرجاع الكميات
-  this.cartService.clearCart();
-  this.notyf.error('cart Deleted successfully')
-  this.loadCart();
 
 }
-
 
 getTotal() {
     return this.cartItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
 }
 
-  submitOrder() {
-    if (this.orderForm.invalid || this.cartItems().length === 0) {
-      this.notyf.error('رجاءً تأكد من إدخال البيانات كاملة ووجود منتجات في الكارت.');
-      return;
-    }
-
-    const newOrder: Order = {
-      id: crypto.randomUUID(),
-      customerName: this.orderForm.value.customerName!,
-      phone: this.orderForm.value.phone!,
-      address: this.orderForm.value.address!,
-      items: this.cartItems(),
-      totalPrice: this.getTotal(),
-      date: new Date().toISOString(),
-      status: 'pending',
-    };
-
-    // ✅ أضف الطلب
-    this.ordersService.addOrder(newOrder);
-    console.log(newOrder)
-
-    // ✅ امسح الكارت
-    this.cartService.clearCart();
-    this.notyf.success('order added successfully')
-    this.loadCart()
-    this.orderForm.reset();
-   
+async submitOrder() {
+  if (this.orderForm.invalid || this.cartItems().length === 0) {
+    this.notyf.error('رجاءً تأكد من إدخال البيانات كاملة ووجود منتجات في الكارت.');
+    return;
   }
+
+  const newOrder: Order = {
+  id: crypto.randomUUID(),
+  customerName: this.orderForm.value.customerName!,
+  phone: this.orderForm.value.phone!,
+  address: this.orderForm.value.address!,
+  items: this.cartItems(), // Product[]
+  totalPrice: this.getTotal(),
+  date: new Date().toISOString(),
+  status: 'pending',
+  };
+   //  add order
+    await this.ordersService.addOrderfire(newOrder);
+    // clear cart
+    await this.cartService.clearCartfire();
+    this.notyf.success('✅ Order added successfully');
+    this.orderForm.reset();
+
+}
+
+
+
 
 }
