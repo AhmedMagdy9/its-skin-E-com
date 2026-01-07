@@ -26,7 +26,7 @@ orderColumns = [
 ];
 
 tableActions: TableAction[] = [
-  { name: '🚮',  callback: (row) => this.deletePermanently(row) }
+  {color:'red' , name: '<i class="fa-solid fa-trash text-white"></i>',  callback: (row) => this.deletePermanently(row) }
 ]
 
  deletedOrders:WritableSignal<Order[]> = signal<Order[]>([]);

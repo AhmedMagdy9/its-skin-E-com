@@ -21,6 +21,7 @@
     "@angular/platform-server": "^18.2.0",
     "@angular/router": "^18.2.0",
     "@angular/ssr": "^18.2.21",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@tailwindcss/node": "4.1.16",
     "@tailwindcss/postcss": "4.1.16",
     "@types/jquery": "^3.5.33",

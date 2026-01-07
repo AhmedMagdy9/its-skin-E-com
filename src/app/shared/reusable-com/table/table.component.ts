@@ -3,9 +3,10 @@ import { Product } from '../../interfaces/product';
 import { Subject } from 'rxjs';
 import { DataTablesModule } from 'angular-datatables';
 import { Order } from '../../interfaces/order';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 
 export interface TableAction {
+  color?: string;
   name: string;
   icon?: string;            // ايقونة لو عايز      
   callback: (row: any) => void; // الدالة اللي هتتعمل Call عليها
@@ -14,12 +15,13 @@ export interface TableAction {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [DataTablesModule  ],
+  imports: [DataTablesModule, NgClass],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss'
 })
 export class TableComponent implements OnInit , AfterViewInit, OnDestroy {
 
+ 
   @Input() columns:any[] = [];
   @Input() rows: any[] = [];
   @Input() actions: TableAction[] = [];  // actions: TableAction[] = [];
@@ -46,7 +48,7 @@ export class TableComponent implements OnInit , AfterViewInit, OnDestroy {
     this.dtTrigger.unsubscribe();
   }
 
- 
+
 }
 
 

@@ -62,26 +62,25 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search{
 
 div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search .dt-input{
   width: 60%;
-   padding: 18px 14px;
+  padding: 18px 14px;
   background: #222;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
   border: 1px solid #222;
   border-radius: 14px;
   color: #fff;
   font-size: 16px;
   outline: none;
   transition: 0.4s;
+  
 }
 
 div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end .dt-search .dt-input:focus{
    border-color: #d4af37;
-   box-shadow:
-    0 0 12px rgba(212, 175, 55, 0.7),
-    inset 0 0 8px rgba(212, 175, 55, 0.35);
 }
 
 div.dt-container select.dt-input{
-  width: 100%;
-  padding: 10px 5px;
+  
+  
   background: #222;
   border: 1px solid #fff;
   border-radius: 14px;

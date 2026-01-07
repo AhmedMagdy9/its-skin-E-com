@@ -42,6 +42,8 @@ export class AddproductComponent implements OnInit {
       const { id, ...product } = this.productForm.value;
       console.log(product)
       this.productService.addProduct(product)
+      this.notyf.success('Product added successfully')
+      this.productForm.reset()
   }
 }  
 

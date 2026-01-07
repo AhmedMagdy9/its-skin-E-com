@@ -3,7 +3,7 @@
 
   @if (cartItems().length === 0) {
     <div class="text-center text-color3">
-      مفيش منتجات في الكارت دلوقتي 😅
+      مفيش منتجات في الكارت دلوقتي 
     </div>
   }
 
@@ -18,7 +18,7 @@
 
           <div class="flex items-center gap-3">
             <input type="number" min="1" [value]="item.quantity" (change)="updateQuantityfire(item.id, $event)" class="w-16 border rounded px-2 text-center"/>
-            <button (click)="removeItem(item.id)" class="text-red-500 cursor-pointer hover:text-red-700">🗑️</button>
+            <button (click)="removeItem(item.id)" class="text-red-500 cursor-pointer hover:text-red-700"><i class="fa-solid fa-trash text-xl"></i></button>
           </div>
         </div>
       }

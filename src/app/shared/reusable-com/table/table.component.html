@@ -2,8 +2,8 @@
 
 <div class="min-h-screen relative px-6 table-3d">
 <div class="overflow-x-auto table-face ">
- <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="min-w-full  bg-color2 rounded-2xl shadow-custom">
-<thead class="bg-color2 text-[#4A70A9]">
+ <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="min-w-full   ">
+<thead class="">
   <tr id="header">
     @for (col of columns; track col) {
       <th class="py-3 px-4 text-color3">{{ col.label }}</th>
@@ -11,7 +11,7 @@
     <th class="py-3 px-4 text-color3 ">Actions</th>
   </tr>
 </thead>
- <tbody>
+ <tbody class="bg-color2 shadow-custom ">
     @for (row of rows; track row.id; let rowIndex = $index) {
     <tr class="border-t   transition">
 
@@ -34,9 +34,10 @@
           </ul>
         </td>
       }
+
       <!-- 3- Text -->
       @else {
-        <td class="py-3 px-4  text-gray-600 text-center ">
+        <td [class]="row.expiryClass" class="py-3 px-4   text-gray-600 text-center ">
           {{ row[col.key] }}
         </td>
       }
@@ -45,8 +46,8 @@
     <!-- actions -->
     <td class=" flex flex-col  lg:flex-row justify-evenly ">
       @for (action of actions; track $index) {
-        <button   (click)="action.callback(row)"  class="text-white px-3 py-2 rounded-xl hover:bg-gray-300 transition">
-          {{ action.name }}
+        <button  [ngClass]=" action.color === 'red' ? 'bg-red-500' : action.color === 'green' ? 'bg-green-500' : 'bg-yellow-500'"  (click)="action.callback(row)"  class="px-6 my-1 bg-red-700 rounded-full ">
+          <span [innerHTML]="action.name"></span>
         </button>
       }
     </td>

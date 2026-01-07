@@ -24,7 +24,7 @@ export class ExpensesComponent {
   ];
 
   tableActions: TableAction[] = [
-    { name: '🚮',  callback: (row) => this.deleteExpense(row.id) }
+    {color:'red' , name: '<i class="fa-solid fa-trash text-white"></i>',  callback: (row) => this.deleteExpense(row.id) }
   ];
 
   filteredExpenses:WritableSignal<Expense[]> = signal<Expense[]>([]);

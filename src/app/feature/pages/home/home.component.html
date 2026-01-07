@@ -1,13 +1,13 @@
 
 <div class="min-h-screen relative  px-6">
-  <h1 class="text-3xl font-bold text-center mb-8 text-color3">📦 منتجاتك الحالية</h1>
+  <h1 class="text-3xl font-bold text-center mb-8 text-color3"> منتجاتك الحالية</h1>
   <!-- if no products  -->
   @if (!products() || products().length === 0) {
     <div class="text-center text-gray-500 text-lg">
       مفيش منتجات مضافة لسه 😅
     </div>
   } @else {
-      <app-table [columns]="productColumns" [rows]="products()" [actions]="tableActions"></app-table>
+      <app-table  [columns]="productColumns" [rows]="mappedProducts()" [actions]="tableActions"></app-table>
          }
 
   @if (toggleForm()) {

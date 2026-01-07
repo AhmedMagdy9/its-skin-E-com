@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, PLATFORM_ID, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../../shared/interfaces/product';
 import { ProductService } from '../../../core/services/product service/product.service';
 import {  isPlatformBrowser } from '@angular/common';
@@ -34,9 +34,9 @@ productColumns = [
 ];
 
 tableActions: TableAction[] = [
-  { name: '🛒',  callback: (row) => this.addToCart(row) },
-  { name: '🛠️', callback: (row) => this.startEdit(row) },
-  { name: '🚮',  callback: (row) => this.deleteProduct(row) },
+  {color:'green' , name: '<i class="fa-solid fa-cart-arrow-down text-white "></i>',  callback: (row) => this.addToCart(row) },
+  {color:'yellow' , name: '<i class="fa-solid fa-gear  text-white"></i>', callback: (row) => this.startEdit(row) },
+  {color:'red' , name: '<i class="fa-solid fa-trash text-white "></i>',  callback: (row) => this.deleteProduct(row) },
 ];
 
 
@@ -61,6 +61,12 @@ tableActions: TableAction[] = [
      description: new FormControl(''),
    });
 
+  mappedProducts = computed(() =>
+  this.products().map(p => ({
+    ...p,
+    expiryClass: this.getExpiryColor(p.expiryDate)
+  }))
+);
  
 
 
@@ -104,7 +110,7 @@ tableActions: TableAction[] = [
 
   if (diffInDays < 0) return 'text-red-600'; // expired
   else if (diffInDays <= 60) return 'text-yellow-600'; // expiring soon 2 manths
-  else return 'text-green-600'; // not expired
+  else return ''; // not expired
   }
   
 
